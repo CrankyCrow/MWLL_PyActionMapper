@@ -1,0 +1,797 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ActionMaps>
+	<visible>
+		<map>default</map>
+		<map>player</map>
+		<map>vehicle</map>
+		<map>mech</map>
+		<map>tank</map>
+		<map>vtol</map>
+		<map>aerospace</map>
+	</visible>
+	<actionmap name="player" version="20">
+		<action name="givemecbills" onPress="1" consoleCmd="1">
+			<key name="home"></key>
+			<key name="rctrl"></key>
+		</action>
+		<action name="Toggle_CBill_Menu" onPress="1" onRelease="1">
+			<key name="rshift"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Confirm_CBill_Menu" onPress="1" onRelease="1">
+			<key name="enter"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Choose_CBill_Player" onPress="1" onRelease="1">
+			<key name="left"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Choose_CBill_Amount" onPress="1" onRelease="1">
+			<key name="right"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Prev_CBill_Option" onPress="1" onRelease="1">
+			<key name="up"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Next_CBill_Option" onPress="1" onRelease="1">
+			<key name="down"></key>
+			<key name="null"></key>
+		</action>
+		<action name="jump" onPress="1" onRelease="1">
+			<key name="lalt"></key>
+			<key name="space"></key>
+		</action>
+		<action name="crouch" onPress="1" onRelease="1">
+			<key name="lctrl"></key>
+			<key name="xi_thumbl"></key>
+		</action>
+		<action name="sprint" onPress="1" onRelease="1" retriggerable="1">
+			<key name="lshift"></key>
+			<key name="xi_shoulderl"></key>
+		</action>
+		<action name="special" onPress="1" onRelease="1">
+			<key name="t"></key>
+			<key name="xi_thumbr"></key>
+		</action>
+		<action name="moveleft" onPress="1" onRelease="1" retriggerable="1">
+			<key name="a"></key>
+			<key name="null"></key>
+		</action>
+		<action name="moveright" onPress="1" onRelease="1" retriggerable="1">
+			<key name="d"></key>
+			<key name="null"></key>
+		</action>
+		<action name="moveforward" onPress="1" onRelease="1" retriggerable="1">
+			<key name="w"></key>
+			<key name="null"></key>
+		</action>
+		<action name="moveback" onPress="1" onRelease="1" retriggerable="1">
+			<key name="s"></key>
+			<key name="null"></key>
+		</action>
+		<action name="specmoveup" onPress="1" onRelease="1" retriggerable="1">
+			<key name="space"></key>
+			<key name="null"></key>
+		</action>
+		<action name="specmovedown" onPress="1" onRelease="1" retriggerable="1">
+			<key name="lctrl"></key>
+			<key name="null"></key>
+		</action>
+		<action name="toggleIntCvar hud_spec_minimumMode" onPress="1" consoleCmd="1">
+			<key name="rshift"></key>
+			<key name="null"></key>
+		</action>
+		<action name="specmovez">
+			<key name="joyaxis_z"></key>
+		</action>
+		<action name="leanleft" onPress="1" onRelease="1" onHold="1">
+			<key name="x"></key>
+			<key name="null"></key>
+		</action>
+		<action name="leanright" onPress="1" onRelease="1" onHold="1">
+			<key name="c"></key>
+			<key name="null"></key>
+		</action>
+		<action name="rotateyaw">
+			<key name="maxis_x"></key>
+			<key name="null"></key>
+		</action>
+		<action name="rotatepitch">
+			<key name="maxis_y"></key>
+			<key name="null"></key>
+		</action>
+		<action name="nextitem" onPress="1">
+			<key name="mwheel_up"></key>
+			<key name="xi_dpad_right"></key>
+		</action>
+		<action name="previtem" onPress="1">
+			<key name="mwheel_down"></key>
+			<key name="xi_dpad_left"></key>
+		</action>
+		<action name="explosive" onPress="1">
+			<key name="3"></key>
+			<key name="mouse5"></key>
+		</action>
+		<action name="handgrenade" onPress="1">
+			<key name="mouse3"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_handgrenade" onPress="1" onRelease="1">
+			<key name="xi_y"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_grenade" onPress="1" onRelease="1">
+			<key name="xi_y"></key>
+			<key name="null"></key>
+		</action>
+		<action name="zoom_out" onPress="1">
+			<key name="mwheel_down"></key>
+			<key name="null"></key>
+		</action>
+		<action name="drop" onPress="1" onRelease="1">
+			<key name="j"></key>
+			<key name="null"></key>
+		</action>
+		<action name="small" onPress="1">
+			<key name="1"></key>
+			<key name="null"></key>
+		</action>
+		<action name="medium" onPress="1">
+			<key name="2"></key>
+			<key name="mouse4"></key>
+		</action>
+		<action name="utility" onPress="1">
+			<key name="5"></key>
+			<key name="null"></key>
+		</action>
+		<action name="grenade" onPress="1" onRelease="1">
+			<key name="mouse2"></key>
+			<key name="null"></key>
+		</action>
+		<action name="zoom_in" onPress="1">
+			<key name="mwheel_up"></key>
+			<key name="null"></key>
+		</action>
+		<action name="lights" onPress="1">
+			<key name="l"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_movex">
+			<key name="xi_thumblx"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_movey">
+			<key name="xi_thumbly"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_rotateyaw">
+			<key name="xi_thumbrx"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_rotatepitch">
+			<key name="xi_thumbry"></key>
+			<key name="null"></key>
+		</action>
+		<action name="hud_weapon_mod" onPress="1">
+			<key name="c"></key>
+			<key name="null"></key>
+		</action>
+		<action name="jump_jets" onPress="1" onRelease="1">
+			<key name="space"></key>
+			<key name="xi_a"></key>
+		</action>
+	</actionmap>
+	<actionmap name="vehicle" version="20">
+		<action name="CurrentWeaponFiremodeChange" onPress="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="XI_Stop_Fire_Current_Group" onRelease="1">
+			<key name="xi_triggerr_btn"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Toggle_Ramping_Throttle" onPress="1">
+			<key name="k"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Toggle_Auto_Shutdown" onPress="1">
+			<key name="h"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Stop_Fire_Current_Group" onRelease="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="EnableThrottleval" onPress="1">
+			<key name="np_divide"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottleReverse" onPress="1">
+			<key name="np_subtract"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Next_Weapon_Group" onPress="1">
+			<key name="right"></key>
+			<key name="xi_dpad_right"></key>
+		</action>
+		<action name="Dump_Ammo" onPress="1">
+			<key name="delete"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Force_Reload" onPress="1">
+			<key name="end"></key>
+			<key name="null"></key>
+		</action>
+		<action name="XI_Stop_Fire_Group6" onRelease="1">
+			<key name="joybut_6"></key>
+		</action>
+		<action name="Stop_Fire_Group6" onRelease="1">
+			<key name="6"></key>
+			<key name="mouse6"></key>
+		</action>
+		<action name="XI_Stop_Fire_Group5" onRelease="1">
+			<key name="joybut_5"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Stop_Fire_Group5" onRelease="1">
+			<key name="5"></key>
+			<key name="mouse5"></key>
+		</action>
+		<action name="XI_Stop_Fire_Group4" onRelease="1">
+			<key name="joybut_4"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Stop_Fire_Group4" onRelease="1">
+			<key name="4"></key>
+			<key name="mouse4"></key>
+		</action>
+		<action name="XI_Stop_Fire_Group3" onRelease="1">
+			<key name="joybut_3"></key>
+			<key name="xi_shoulderr"></key>
+		</action>
+		<action name="Toggle_Powerup_Shutdown" onPress="1">
+			<key name="p"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Stop_Fire_Group3" onRelease="1">
+			<key name="3"></key>
+			<key name="mouse3"></key>
+		</action>
+		<action name="XI_Stop_Fire_Group2" onRelease="1">
+			<key name="joybut_2"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Stop_Fire_Group2" onRelease="1">
+			<key name="2"></key>
+			<key name="mouse2"></key>
+		</action>
+		<action name="XI_Stop_Fire_Group1" onRelease="1">
+			<key name="joybut_1"></key>
+			<key name="null"></key>
+		</action>
+		<action name="XI_Fire_Current_Group" onPress="1">
+			<key name="xi_triggerr_btn"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Stop_Fire_Group1" onRelease="1">
+			<key name="1"></key>
+			<key name="mouse1"></key>
+		</action>
+		<action name="Fire_Current_Group" onPress="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Previous_Weapon_Group" onPress="1">
+			<key name="left"></key>
+			<key name="xi_dpad_left"></key>
+		</action>
+		<action name="Confirm_CBill_Menu" onPress="1" onRelease="1">
+			<key name="enter"></key>
+			<key name="null"></key>
+		</action>
+		<action name="givemecbills" onPress="1" consoleCmd="1">
+			<key name="home"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Toggle_CBill_Menu" onPress="1" onRelease="1">
+			<key name="rshift"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Choose_CBill_Player" onPress="1" onRelease="1">
+			<key name="left"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Choose_CBill_Amount" onPress="1" onRelease="1">
+			<key name="right"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Prev_CBill_Option" onPress="1" onRelease="1">
+			<key name="up"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Next_CBill_Option" onPress="1" onRelease="1">
+			<key name="down"></key>
+			<key name="null"></key>
+		</action>
+		<action name="firemode" onPress="1">
+			<key name="backspace"></key>
+			<key name="xi_dpad_up"></key>
+		</action>
+		<action name="binoculars" onPress="1">
+			<key name="b"></key>
+			<key name="null"></key>
+		</action>
+		<action name="zoom_out" onPress="1">
+			<key name="mwheel_down"></key>
+			<key name="null"></key>
+		</action>
+		<action name="zoom_in" onPress="1">
+			<key name="mwheel_up"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_horn" onPress="1" onRelease="1">
+			<key name="h"></key>
+			<key name="xi_thumbr"></key>
+		</action>
+		<action name="v_brake" onPress="1" onRelease="1">
+			<key name="x"></key>
+			<key name="xi_thumbl"></key>
+		</action>
+		<action name="v_boost" onPress="1" onRelease="1" retriggerable="1">
+			<key name="lshift"></key>
+			<key name="xi_shoulderl"></key>
+		</action>
+		<action name="sell" onRelease="1">
+			<key name="j"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_changeseat1" onPress="1">
+			<key name="f3"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_changeseat2" onPress="1">
+			<key name="="></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_changeseat3" onPress="1">
+			<key name="-"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_changeseat4" onPress="1">
+			<key name="0"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_changeseat5" onPress="1">
+			<key name="9"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_changeview" onPress="1">
+			<key name="f4"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_lights" onPress="1" onRelease="1">
+			<key name="l"></key>
+			<key name="null"></key>
+		</action>
+		<action name="previous_vehicle_info" onPress="1">
+			<key name="pgup"></key>
+			<key name="null"></key>
+		</action>
+		<action name="next_vehicle_info" onPress="1">
+			<key name="pgdn"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_viewup" onPress="1">
+			<key name="pgup"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_viewdown" onPress="1">
+			<key name="pgdn"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_changeseat" onPress="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Next_Weapon" onPress="1">
+			<key name="down"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Previous_Weapon" onPress="1">
+			<key name="up"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Toggle_Weapon" onPress="1">
+			<key name="rctrl"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Fire_Group1" onPress="1">
+			<key name="1"></key>
+			<key name="mouse1"></key>
+		</action>
+		<action name="XI_Fire_Group1" onPress="1">
+			<key name="joybut_1"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Fire_Group2" onPress="1">
+			<key name="2"></key>
+			<key name="mouse2"></key>
+		</action>
+		<action name="XI_Fire_Group2" onPress="1">
+			<key name="joybut_2"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Fire_Group3" onPress="1">
+			<key name="3"></key>
+			<key name="mouse3"></key>
+		</action>
+		<action name="XI_Fire_Group3" onPress="1">
+			<key name="joybut_3"></key>
+			<key name="xi_shoulderr"></key>
+		</action>
+		<action name="Fire_Group4" onPress="1">
+			<key name="4"></key>
+			<key name="mouse4"></key>
+		</action>
+		<action name="XI_Fire_Group4" onPress="1">
+			<key name="joybut_4"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Fire_Group5" onPress="1">
+			<key name="5"></key>
+			<key name="mouse5"></key>
+		</action>
+		<action name="XI_Fire_Group5" onPress="1">
+			<key name="joybut_5"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Fire_Group6" onPress="1">
+			<key name="6"></key>
+			<key name="mouse6"></key>
+		</action>
+		<action name="XI_Fire_Group6" onPress="1">
+			<key name="joybut_6"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottle0" onPress="1">
+			<key name="np_0"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottle1" onPress="1">
+			<key name="np_1"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottle2" onPress="1">
+			<key name="np_2"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottle3" onPress="1">
+			<key name="np_3"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottle4" onPress="1">
+			<key name="np_4"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottle5" onPress="1">
+			<key name="np_5"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottle6" onPress="1">
+			<key name="np_6"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottle7" onPress="1">
+			<key name="np_7"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottle8" onPress="1">
+			<key name="np_8"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottle9" onPress="1">
+			<key name="np_9"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottle10" onPress="1">
+			<key name="np_add"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottleval">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="CenterTorso" onPress="1" onRelease="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="Flush_Coolant" onPress="1" onRelease="1">
+			<key name="c"></key>
+			<key name="xi_y"></key>
+		</action>
+		<action name="toggleIntCvar cl_free_reticle_independent" onPress="1" consoleCmd="1">
+			<key name="f1"></key>
+			<key name="null"></key>
+		</action>
+		<action name="center_free_reticle" onPress="1">
+			<key name="f1"></key>
+			<key name="null"></key>
+		</action>
+		<action name="toggle_free_reticle" onPress="1">
+			<key name="f2"></key>
+			<key name="null"></key>
+		</action>
+	</actionmap>
+	<actionmap name="mech" version="21">
+		<action name="xi_v_rotatepitch">
+			<key name="xi_thumbry"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_v_movex">
+			<key name="xi_thumblx"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_v_movey">
+			<key name="xi_thumbly"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_v_rotateyaw">
+			<key name="xi_thumbrx"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_rotateyaw">
+			<key name="maxis_x"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_rotatepitch">
+			<key name="maxis_y"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_moveforward" onPress="1" onRelease="1" retriggerable="1">
+			<key name="w"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_moveback" onPress="1" onRelease="1" retriggerable="1">
+			<key name="s"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_turnleft" onPress="1" onRelease="1" retriggerable="1">
+			<key name="a"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_turnright" onPress="1" onRelease="1" retriggerable="1">
+			<key name="d"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_crouch" onPress="1" onRelease="1">
+			<key name="lctrl"></key>
+			<key name="null"></key>
+		</action>
+		<action name="jump_jets" onPress="1" onRelease="1">
+			<key name="space"></key>
+			<key name="xi_a"></key>
+		</action>
+	</actionmap>
+	<actionmap name="tank" version="20">
+		<action name="xi_v_rotatepitch">
+			<key name="xi_thumbry"></key>
+			<key name="null"></key>
+		</action>
+		<action name="deploy" onPress="1">
+			<key name="lctrl"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_v_movex">
+			<key name="xi_thumblx"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_v_movey">
+			<key name="xi_thumbly"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_v_rotateyaw">
+			<key name="xi_thumbrx"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_rotateyaw">
+			<key name="maxis_x"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_rotatepitch">
+			<key name="maxis_y"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_moveforward" onPress="1" onRelease="1" retriggerable="1">
+			<key name="w"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_moveback" onPress="1" onRelease="1" retriggerable="1">
+			<key name="s"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_turnleft" onPress="1" onRelease="1" retriggerable="1">
+			<key name="a"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_turnright" onPress="1" onRelease="1" retriggerable="1">
+			<key name="d"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_movex">
+			<key name="null"></key>
+		</action>
+		<action name="v_strafeleft" onPress="1" onRelease="1" retriggerable="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_straferight" onPress="1" onRelease="1" retriggerable="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+	</actionmap>
+	<actionmap name="vtol" version="21">
+		<action name="xi_v_rotatepitch">
+			<key name="xi_thumbly"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_v_rotateroll">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_v_rotateyaw">
+			<key name="xi_thumbrx"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_v_movex">
+			<key name="xi_thumblx"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_v_movey">
+			<key name="xi_thumbry"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_rotatepitch">
+			<key name="maxis_y"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_rotateyaw">
+			<key name="maxis_x"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_moveforward" onPress="1" onRelease="1" retriggerable="1">
+			<key name="w"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_moveback" onPress="1" onRelease="1" retriggerable="1">
+			<key name="s"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_moveup" onPress="1" onRelease="1" retriggerable="1">
+			<key name="space"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_movedown" onPress="1" onRelease="1" retriggerable="1">
+			<key name="lctrl"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_strafeleft" onPress="1" onRelease="1" retriggerable="1">
+			<key name="a"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_straferight" onPress="1" onRelease="1" retriggerable="1">
+			<key name="d"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_pitchup" onPress="1" onRelease="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_pitchdown" onPress="1" onRelease="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_rollleft" onPress="1" onRelease="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_rollright" onPress="1" onRelease="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_turnleft" onPress="1" onRelease="1" onHold="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_turnright" onPress="1" onRelease="1" onHold="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottleval">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="levelout" onPress="1" onRelease="1">
+			<key name="lalt"></key>
+			<key name="null"></key>
+		</action>
+		<action name="ToggleGears" onPress="1" onRelease="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+	</actionmap>
+	<actionmap name="aerospace" version="20">
+		<action name="v_rotatepitch">
+			<key name="maxis_y"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_v_rotatepitch">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_pitchup" onPress="1" onRelease="1">
+			<key name="space"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_pitchdown" onPress="1" onRelease="1">
+			<key name="lctrl"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_rotateyaw">
+			<key name="maxis_x"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_v_rotateyaw">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_turnleft" onPress="1" onRelease="1" onHold="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_turnright" onPress="1" onRelease="1" onHold="1">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_rotateroll">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_v_rotateroll">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_rollleft" onPress="1" onRelease="1">
+			<key name="a"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_rollright" onPress="1" onRelease="1">
+			<key name="d"></key>
+			<key name="null"></key>
+		</action>
+		<action name="SetThrottleval">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="xi_v_movey">
+			<key name="null"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_moveup" onPress="1" onRelease="1" retriggerable="1">
+			<key name="w"></key>
+			<key name="null"></key>
+		</action>
+		<action name="v_movedown" onPress="1" onRelease="1" retriggerable="1">
+			<key name="s"></key>
+			<key name="null"></key>
+		</action>
+		<action name="ToggleGears" onPress="1">
+			<key name="g"></key>
+			<key name="null"></key>
+		</action>
+		<action name="levelout" onPress="1" onRelease="1">
+			<key name="lalt"></key>
+			<key name="null"></key>
+		</action>
+	</actionmap>
+</ActionMaps>

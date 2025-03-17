@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ELEMENT ActionMaps (visible?,actionmap+)>
+<!-- visible and map are NOT standard parts,
+they're to help actionmapper understand what to do
+These MAY cause complete failure to load in crysis as they're not standard. 
+Might be able to get around that by cleverly removing them from user maps,
+while keeping them in the default and/or templates.  -->
+<!ELEMENT visible (map+)>
+<!ELEMENT map ANY> 
+<!ELEMENT actionmap (action+)>
+<!ELEMENT action (key+)>
+<!ELEMENT key EMPTY>
+
+<!ATTLIST actionmap
+name CDATA #REQUIRED
+version CDATA #REQUIRED>
+
+<!ATTLIST action
+name CDATA #REQUIRED
+display_name CDATA #IMPLIED
+onPress CDATA #IMPLIED
+onRelease CDATA #IMPLIED
+onHold CDATA #IMPLIED
+always CDATA #IMPLIED
+noModifiers CDATA #IMPLIED
+retriggerable CDATA #IMPLIED
+consoleCmd CDATA #IMPLIED
+>
+
+<!ATTLIST key name CDATA #REQUIRED>

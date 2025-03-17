@@ -1,0 +1,1 @@
+from theme.theme_registry import *
