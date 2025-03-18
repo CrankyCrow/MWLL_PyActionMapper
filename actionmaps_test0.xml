@@ -12,7 +12,7 @@
 	<actionmap name="player" version="20">
 		<action name="givemecbills" onPress="1" consoleCmd="1">
 			<key name="home"></key>
-			<key name="rctrl"></key>
+			<key name="rshift"></key>
 		</action>
 		<action name="Toggle_CBill_Menu" onPress="1" onRelease="1">
 			<key name="rshift"></key>

@@ -4,8 +4,6 @@ from pathlib import Path
 from pyactionmapper.structure import actionmaps
 
 categories = ["player", "vehicle", "mech", "tank", "vtol", "aerospace"]
-# master_dict = {}
-# test_list_player = [{'name': 'givemecbills', 'onPress': '1', 'consoleCmd': '1', 'key': [{'name': 'home'}, {'name': 'null'}]}, {'name': 'Toggle_CBill_Menu', 'onPress': '1', 'onRelease': '1', 'key': [{'name': 'rshift'}, {'name': 'null'}]}, {'name': 'Confirm_CBill_Menu', 'onPress': '1', 'onRelease': '1', 'key': [{'name': 'enter'}, {'name': 'null'}]}, {'name': 'Choose_CBill_Player', 'onPress': '1', 'onRelease': '1', 'key': [{'name': 'left'}, {'name': 'null'}]}, {'name': 'Choose_CBill_Amount', 'onPress': '1', 'onRelease': '1', 'key': [{'name': 'right'}, {'name': 'null'}]}, {'name': 'Prev_CBill_Option', 'onPress': '1', 'onRelease': '1', 'key': [{'name': 'up'}, {'name': 'null'}]}, {'name': 'Next_CBill_Option', 'onPress': '1', 'onRelease': '1', 'key': [{'name': 'down'}, {'name': 'null'}]}, {'name': 'jump', 'onPress': '1', 'onRelease': '1', 'key': [{'name': 'lalt'}, {'name': 'space'}]}, {'name': 'crouch', 'onPress': '1', 'onRelease': '1', 'key': [{'name': 'lctrl'}, {'name': 'xi_thumbl'}]}, {'name': 'sprint', 'onPress': '1', 'onRelease': '1', 'retriggerable': '1', 'key': [{'name': 'lshift'}, {'name': 'xi_shoulderl'}]}, {'name': 'special', 'onPress': '1', 'onRelease': '1', 'key': [{'name': 't'}, {'name': 'xi_thumbr'}]}, {'name': 'moveleft', 'onPress': '1', 'onRelease': '1', 'retriggerable': '1', 'key': [{'name': 'a'}, {'name': 'null'}]}, {'name': 'moveright', 'onPress': '1', 'onRelease': '1', 'retriggerable': '1', 'key': [{'name': 'd'}, {'name': 'null'}]}, {'name': 'moveforward', 'onPress': '1', 'onRelease': '1', 'retriggerable': '1', 'key': [{'name': 'w'}, {'name': 'null'}]}, {'name': 'moveback', 'onPress': '1', 'onRelease': '1', 'retriggerable': '1', 'key': [{'name': 's'}, {'name': 'null'}]}, {'name': 'specmoveup', 'onPress': '1', 'onRelease': '1', 'retriggerable': '1', 'key': [{'name': 'space'}, {'name': 'null'}]}, {'name': 'specmovedown', 'onPress': '1', 'onRelease': '1', 'retriggerable': '1', 'key': [{'name': 'lctrl'}, {'name': 'null'}]}, {'name': 'toggleIntCvar hud_spec_minimumMode', 'onPress': '1', 'consoleCmd': '1', 'key': [{'name': 'rshift'}, {'name': 'null'}]}, {'name': 'specmovez', 'key': {'name': 'joyaxis_z'}}, {'name': 'leanleft', 'onPress': '1', 'onRelease': '1', 'onHold': '1', 'key': [{'name': 'x'}, {'name': 'null'}]}, {'name': 'leanright', 'onPress': '1', 'onRelease': '1', 'onHold': '1', 'key': [{'name': 'c'}, {'name': 'null'}]}, {'name': 'rotateyaw', 'key': [{'name': 'maxis_x'}, {'name': 'null'}]}, {'name': 'rotatepitch', 'key': [{'name': 'maxis_y'}, {'name': 'null'}]}, {'name': 'nextitem', 'onPress': '1', 'key': [{'name': 'mwheel_up'}, {'name': 'xi_dpad_right'}]}, {'name': 'previtem', 'onPress': '1', 'key': [{'name': 'mwheel_down'}, {'name': 'xi_dpad_left'}]}, {'name': 'explosive', 'onPress': '1', 'key': [{'name': '3'}, {'name': 'mouse5'}]}, {'name': 'handgrenade', 'onPress': '1', 'key': [{'name': 'mouse3'}, {'name': 'null'}]}, {'name': 'xi_handgrenade', 'onPress': '1', 'onRelease': '1', 'key': [{'name': 'xi_y'}, {'name': 'null'}]}, {'name': 'xi_grenade', 'onPress': '1', 'onRelease': '1', 'key': [{'name': 'xi_y'}, {'name': 'null'}]}, {'name': 'zoom_out', 'onPress': '1', 'key': [{'name': 'mwheel_down'}, {'name': 'null'}]}, {'name': 'drop', 'onPress': '1', 'onRelease': '1', 'key': [{'name': 'j'}, {'name': 'null'}]}, {'name': 'small', 'onPress': '1', 'key': [{'name': '1'}, {'name': 'null'}]}, {'name': 'medium', 'onPress': '1', 'key': [{'name': '2'}, {'name': 'mouse4'}]}, {'name': 'utility', 'onPress': '1', 'key': [{'name': '5'}, {'name': 'null'}]}, {'name': 'grenade', 'onPress': '1', 'onRelease': '1', 'key': [{'name': 'mouse2'}, {'name': 'null'}]}, {'name': 'zoom_in', 'onPress': '1', 'key': [{'name': 'mwheel_up'}, {'name': 'null'}]}, {'name': 'lights', 'onPress': '1', 'key': [{'name': 'l'}, {'name': 'null'}]}, {'name': 'xi_movex', 'key': [{'name': 'xi_thumblx'}, {'name': 'null'}]}, {'name': 'xi_movey', 'key': [{'name': 'xi_thumbly'}, {'name': 'null'}]}, {'name': 'xi_rotateyaw', 'key': [{'name': 'xi_thumbrx'}, {'name': 'null'}]}, {'name': 'xi_rotatepitch', 'key': [{'name': 'xi_thumbry'}, {'name': 'null'}]}, {'name': 'hud_weapon_mod', 'onPress': '1', 'key': [{'name': 'c'}, {'name': 'null'}]}, {'name': 'jump_jets', 'onPress': '1', 'onRelease': '1', 'key': [{'name': 'space'}, {'name': 'xi_a'}]}]
 
 xml_dir=Path("{}/xml".format("E:\Documents\ProgrammingStuff\Python\DearPyGUI_Sandbox"))
 xml_actionmap=Path(f"{xml_dir}/default_actionmaps.xml")
@@ -17,31 +15,42 @@ actionmaps.load(xml_actionmap, dtd_actionmap)
 actionmaps_master_list = ast.literal_eval(actionmaps.__str__().removeprefix("actionmaps(").removesuffix(")"))
 print(actionmaps_master_list)
 
-test_list_player = actionmaps.get_section(categories[0])[0]            # remember that get_section returns a tuple, with the important value being index 0
-print(test_list_player)
-# get the index of the actionmaps section being updated:
-section_index_player = actionmaps_master_list[0][1]['actionmap'].index(test_list_player)
-print("player section index:", section_index_player)
-
 # update a keybind for something in the "player" category:
 ## get an action:
 action_name = "givemecbills"
 ## get a new key to bind to:
 new_bind = "rctrl"
-test_action_player_givemecbills = actionmaps.get_action(categories[0], action_name)[0]        # ditto for get_action, re: returned tuple having important stuff in index 0
-print(test_action_player_givemecbills)
-## get the index of the action being modified:
-action_index = test_list_player['action'].index(test_action_player_givemecbills)
-print("givemecbills action index:", action_index)
-## update chosen keybind of said action:
-test_action_player_givemecbills['key'][1]['@name'] = new_bind
-print(test_action_player_givemecbills)
-## add this action back into its corresponding section, using the index acquired earlier:
-test_list_player['action'][action_index] = test_action_player_givemecbills
-print(test_list_player)
-## update the master actionmap data with the updated section:
-actionmaps_master_list[0][1]['actionmap'][section_index_player] = test_list_player
-print(actionmaps_master_list)
+def set_bind(section, action, bindnum, newkey):
+    """
+    Updates an action's bind slot with the user's chosen key
+    Example: update_bind("givemecbills", 1, "rctrl") will set the "givemecbills" command's bind slot 1 to "rctrl"
+    :param section: the name of the section where the action-to-be-modified is located
+    :param action: the name of the action being modified
+    :param bindnum: the index number (0 or 1) of the bind slot to modify
+    :param newkey: the name of the key to set in the bind slot
+    :return:
+    """
+    section_chosen = actionmaps.get_section(section)[0]  # remember that get_section returns a tuple, with the important value being index 0
+    print(section_chosen)
+    # get the index of the actionmaps section being updated:
+    section_chosen_index = actionmaps_master_list[0][1]['actionmap'].index(section_chosen)
+    print("player section index:", section_chosen_index)
+    action_chosen = actionmaps.get_action(section, action)[0]        # ditto for get_action, re: returned tuple having important stuff in index 0
+    print(action_chosen)
+    ## get the index of the action being modified:
+    action_chosen_index = section_chosen['action'].index(action_chosen)
+    print("givemecbills action index:", action_chosen_index)
+    ## update chosen keybind of said action:
+    action_chosen['key'][bindnum]['@name'] = newkey
+    print(action_chosen)
+    ## add this action back into its corresponding section, using the index acquired earlier:
+    section_chosen['action'][action_chosen_index] = action_chosen
+    print(section_chosen)
+    ## update the master actionmap data with the updated section:
+    actionmaps_master_list[0][1]['actionmap'][section_chosen_index] = section_chosen
+    print(actionmaps_master_list)
+
+set_bind(categories[0], "givemecbills", 1, "rshift")
 
 # write to an xml file using xmltodict.unparse:
 ## note: the source data MUST be a dictionary
