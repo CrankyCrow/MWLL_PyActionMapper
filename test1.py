@@ -3,11 +3,14 @@ from pathlib import Path
 import dearpygui.dearpygui as dpg
 from screeninfo import get_monitors
 from default_actionmaps_parser import returnDict as actionmapsdict
-import pygame, pygame.freetype
+# import pygame, pygame.freetype
 from demos.pynput_demo1 import MouseTracker, KeyboardTracker
 import time
+from ast import literal_eval as EvalStr
+import xmltodict
 import os
 
+# the following three lines MUST be placed BEFORE the import statement that follows them!
 dpg.create_context()
 dpg.create_viewport(title="test1")
 dpg.configure_viewport(0, width=920, height=600, max_width=920, decorated=True, resizable=False)
@@ -18,8 +21,12 @@ from pyactionmapper.structure import actionmaps
 # from pyactionmapper.structure import profile
 
 """
+TODO:
+IDEA_1: Exit keymap screen, prolly simple "Exit" button in a corner
+IDEA_1_FOLLOWUP: This may be redundant with the "Cancel" button already available in the rebind prompt, the user will just have to provide their key input and then proceed to cancel it
+
 Ideas for waaaaayyyyyy later:
-- Custom command maker: for perhaps being able to add stuff like custom paint selections on buy menu open
+- Custom command maker: for perhaps being able to add stuff like custom paint selections on buy menu open (not sure what else this would be used for, though)
 """
 
 class mapper():
@@ -31,17 +38,26 @@ class mapper():
             if m.is_primary:
                 return m.width, m.height
 
+    def delete_tempfile(self):
+        Path.unlink(Path(f"{os.getcwd()}/xml/.amtemp.xml"))
+
     def __init__(self, selected_profile=None):
         self.FILE_DEFAULTACTIONMAPS = "xml/default_actionmaps.xml"
-        xml_dir = Path("{}/xml".format("E:/Documents/ProgrammingStuff/Python/DearPyGUI_Sandbox"))
-        self.xml_actionmap = Path(f"{xml_dir}/default_actionmaps.xml")
-        self.dtd_actionmap = Path(f"{xml_dir}/actionmaps.dtd")
-        self.xml_templates = glob.glob(f"{xml_dir}/actionmaps_*.xml")
+        self.xml_dir = Path(f"{os.getcwd()}/xml")
+        self.xml_actionmap = Path(f"{self.xml_dir}/default_actionmaps.xml")
+        self.dtd_actionmap = Path(f"{self.xml_dir}/actionmaps.dtd")
+        self.xml_templates = glob.glob(f"{self.xml_dir}/actionmaps_*.xml")
 
         self.actionmap_complete = actionmaps()
         # NOTE: actionmap_complete will only be useful/populated with data after its "load" method has been run
         self.actionmap_complete.load(self.xml_actionmap, self.dtd_actionmap)
-        # print(self.actionmap_complete)
+        # create list object to hold initially-loaded actionmaps:
+        self.actionmap_master_OG_list = EvalStr(self.actionmap_complete.__str__().removeprefix("actionmaps(").removesuffix(")"))
+        # print("Original AM:", self.actionmap_master_OG_list)
+        # create list object to hold what will be the modified actionmaps:
+        self.actionmap_master_new_list = self.actionmap_master_OG_list
+        # immediately create a temporary file that will serve as the actionmap to read from when changes are made:
+        self.write_xml_file(self.actionmap_master_new_list, "amtemp")
 
         self.IMAGE_KEY_BG = "images/button_type1.png"
 
@@ -59,12 +75,15 @@ class mapper():
         dpg.set_primary_window(window=self.main_window, value=True)
         self.user_input_device_type = ""
 
+        dpg.set_exit_callback(callback=self.delete_tempfile)
+
     def setup_display(self):
         with dpg.window(label="test1", tag="primary", no_resize=True) as self.main_window:
             # establish menu bar and its child buttons:
             with dpg.menu_bar():
                 with dpg.menu(label="File"):
                     dpg.add_menu_item(label="Switch Profile")
+                    dpg.add_menu_item(label="Reset")
                     dpg.add_menu_item(label="New...")
                     dpg.add_menu_item(label="Import...")
                     dpg.add_menu_item(label="Export...")
@@ -120,6 +139,20 @@ class mapper():
         # dpg.bind_item_theme(self.profile_player_name, invisible_button_theme)
 
         # dpg.show_style_editor()
+
+    def write_xml_file(self, actionmaplist, xmlname):
+        """
+        Write to an xml file using xmltodict.unparse
+        """
+        # note: the source data MUST be a dictionary
+        # thus, prepare source to be turned into a dictionary:
+        master_dict = {
+            actionmaplist[0][0]: actionmaplist[0][1]
+        }
+        output_data = xmltodict.unparse(master_dict, pretty=True)
+        # print(output_data)
+        with open(f"{self.xml_dir}/.{xmlname}.xml", "w") as xmlfile:
+            xmlfile.write(output_data)
 
     def load_actionmap_as_list(self, cat):
         """
@@ -426,7 +459,7 @@ class mapper():
                 mouseTracker = MouseTracker()
                 mouseTracker.start_tracking(waitTime)
                 mousemoveInput = mouseTracker.get_larger_moveAxis()
-                mousemoveInput_button = dpg.add_button(label=f"{mousemoveInput}", width=int(dpg.get_text_size("------------------------------")[0]), pos=[dpg.get_viewport_width()//2 - dpg.get_text_size("------------------------------")[0], dpg.get_viewport_height()//2])
+                mousemoveInput_button = dpg.add_button(label=f"{mousemoveInput} detected", width=int(dpg.get_text_size("------------------------------")[0]), pos=[dpg.get_viewport_width()//2 - dpg.get_text_size("------------------------------")[0], dpg.get_viewport_height()//2])
                 dpg.bind_item_theme(mousemoveInput_button, invisible_button_theme)
                 user_input = mousemoveInput
 
@@ -437,7 +470,7 @@ class mapper():
                 mouseTracker = MouseTracker()
                 mouseTracker.start_tracking(waitTime)
                 mousebuttonInput = mouseTracker.get_buttonPressed()
-                mousebuttonInput_button = dpg.add_button(label=f"{mousebuttonInput}", width=int(dpg.get_text_size("------------------------------")[0]), pos=[dpg.get_viewport_width()//2 - dpg.get_text_size("------------------------------")[0], dpg.get_viewport_height()//2])
+                mousebuttonInput_button = dpg.add_button(label=f"{mousebuttonInput} detected", width=int(dpg.get_text_size("------------------------------")[0]), pos=[dpg.get_viewport_width()//2 - dpg.get_text_size("------------------------------")[0], dpg.get_viewport_height()//2])
                 dpg.bind_item_theme(mousebuttonInput_button, invisible_button_theme)
                 user_input = mousebuttonInput
 
@@ -448,7 +481,7 @@ class mapper():
                 keyboardTracker = KeyboardTracker()
                 keyboardTracker.start_tracking()
                 keyboardkeyInput = keyboardTracker.get_keyPressed()
-                keyboardkeyInput_button = dpg.add_button(label=f"{keyboardkeyInput}", width=int(dpg.get_text_size("------------------------------")[0]), pos=[dpg.get_viewport_width()//2 - dpg.get_text_size("------------------------------")[0], dpg.get_viewport_height()//2])
+                keyboardkeyInput_button = dpg.add_button(label=f"{keyboardkeyInput} detected", width=int(dpg.get_text_size("------------------------------")[0]), pos=[dpg.get_viewport_width()//2 - dpg.get_text_size("------------------------------")[0], dpg.get_viewport_height()//2])
                 dpg.bind_item_theme(keyboardkeyInput_button, invisible_button_theme)
                 user_input = keyboardkeyInput
 
