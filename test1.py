@@ -39,9 +39,10 @@ class mapper():
                 return m.width, m.height
 
     def delete_tempfile(self):
-        Path.unlink(Path(f"{os.getcwd()}/xml/.amtemp.xml"))
+        Path.unlink(Path(f"{os.getcwd()}/xml/.{self.TEMPFILE_NAME}.xml"))
 
     def __init__(self, selected_profile=None):
+        self.TEMPFILE_NAME = "amtemp"
         self.FILE_DEFAULTACTIONMAPS = "xml/default_actionmaps.xml"
         self.xml_dir = Path(f"{os.getcwd()}/xml")
         self.xml_actionmap = Path(f"{self.xml_dir}/default_actionmaps.xml")
@@ -57,7 +58,7 @@ class mapper():
         # create list object to hold what will be the modified actionmaps:
         self.actionmap_master_new_list = self.actionmap_master_OG_list
         # immediately create a temporary file that will serve as the actionmap to read from when changes are made:
-        self.write_xml_file(self.actionmap_master_new_list, "amtemp")
+        self.write_xml_file(self.actionmap_master_new_list, self.TEMPFILE_NAME)
 
         self.IMAGE_KEY_BG = "images/button_type1.png"
 
@@ -173,8 +174,6 @@ class mapper():
         :return: the final window with populated table
         """
 
-        # TODO: Create a class-wide dictionary that holds lists of all sections of actionmaps, which is written to when making any bind change. This is then written to a new XML file.
-
         # controlcategory_dict = actionmapsdict(self.FILE_DEFAULTACTIONMAPS)[ctrlcat]
         # print(controlcategory_dict)
         controlcategory_list = self.load_actionmap_as_list(ctrlcat)
@@ -233,10 +232,11 @@ class mapper():
         dpg.configure_item(item=bindtag, default_value=False)
         print(bindtag)
         extracted_action_info = bindtag.split("#")
+        extracted_action_category = extracted_action_info[0]
         extracted_action_name = extracted_action_info[1]
         extracted_action_selectedbind = extracted_action_info[3]
         extracted_action_selectedbindnum = extracted_action_info[2].replace("bind", "bind ")
-        self.on_keybind_click(extracted_action_name, extracted_action_selectedbind, extracted_action_selectedbindnum)
+        self.on_keybind_click(extracted_action_category, extracted_action_name, extracted_action_selectedbindnum, extracted_action_selectedbind)
 
 
     def combo_setvalue(self, sender):
@@ -249,9 +249,18 @@ class mapper():
         else:
             print("need input to proceed!")
 
-    def on_keybind_click(self, action, bind, bindnum):
+    def on_keybind_click(self, category, action, bindnum, bind):
+        """
+        Defines what happens when a user clicks on a keybind in the generated list of binds.
+        A prompt will open, instructing the user to select a form of input.
+        :param category: the name of the control category in the master actionmaps
+        :param action: the name of the action in the list of actionmaps
+        :param bind: the currently bound key name (as used in the actionmaps file)
+        :param bindnum: the bind name and number (1 or 2), used mostly for display purposes
+        :return:
+        """
         # print(type(action), type(bind))
-        print(action, bind, bindnum)
+        print(category, action, bindnum, bind)
         with dpg.window(label=f"Rebind {action}",
                         no_title_bar=True,
                         autosize=True,
@@ -273,8 +282,9 @@ class mapper():
 
             dpg.add_text("After selecting an input device, you will be prompted to use it", wrap=250)
             dpg.add_separator()
+            bind_slot = int(bindnum.removeprefix("bind ")) - 1
             with dpg.group(horizontal=True):
-                dpg.add_button(label="confirm")
+                dpg.add_button(label="confirm", callback=lambda: [self.on_keybind_prompt_confirm(category=category, action=action, bindnum=bind_slot, newbind=dpg.get_value("rebindwindow_promptfield")), dpg.delete_item("rebind_popup")])
                 dpg.add_button(label="cancel", callback=lambda: dpg.delete_item("rebind_popup"))
 
             # print(dpg.get_value(rebindwindow_inputdevicetype))
@@ -494,6 +504,39 @@ class mapper():
             dpg.delete_item("input_prompt")
 
         return user_input
+
+    def on_keybind_prompt_confirm(self, category, action, bindnum, newbind):
+        """
+        Updates a given action's bind slot with the user's chosen key.
+        This change is immediately made in the new actionmaps's temp file (".amtemp.xml")
+        Example: update_bind("givemecbills", 1, "rctrl") will set the "givemecbills" command's bind slot 1 to "rctrl"
+        :param category: the name of the section where the action-to-be-modified is located
+        :param action: the name of the action being modified
+        :param bindnum: the index number (0 or 1) of the bind slot to modify
+        :param newbind: the name of the key to set in the bind slot
+        :return:
+        """
+        category_chosen = self.actionmap_complete.get_section(category)[0]  # remember that get_section returns a tuple, with the important value being index 0
+        print(category_chosen)
+        # get the index of the actionmaps section being updated:
+        category_chosen_index = self.actionmap_master_new_list[0][1]['actionmap'].index(category_chosen)
+        print("player section index:", category_chosen_index)
+        action_chosen = self.actionmap_complete.get_action(category, action)[0]  # ditto for get_action, re: returned tuple having important stuff in index 0
+        print(action_chosen)
+        ## get the index of the action being modified:
+        action_chosen_index = category_chosen['action'].index(action_chosen)
+        print("givemecbills action index:", action_chosen_index)
+        ## update chosen keybind of said action:
+        action_chosen['key'][bindnum]['@name'] = newbind
+        print(action_chosen)
+        ## add this action back into its corresponding section, using the index acquired earlier:
+        category_chosen['action'][action_chosen_index] = action_chosen
+        print(category_chosen)
+        ## update the master actionmap data with the updated section:
+        self.actionmap_master_new_list[0][1]['actionmap'][category_chosen_index] = category_chosen
+        print(self.actionmap_master_new_list)
+
+        self.write_xml_file(self.actionmap_master_new_list, self.TEMPFILE_NAME)
 
 
     @staticmethod
