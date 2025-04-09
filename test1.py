@@ -22,8 +22,7 @@ from pyactionmapper.structure import actionmaps
 
 """
 TODO:
-IDEA_1: Exit keymap screen, prolly simple "Exit" button in a corner
-IDEA_1_FOLLOWUP: This may be redundant with the "Cancel" button already available in the rebind prompt, the user will just have to provide their key input and then proceed to cancel it
+IDEA_1: "Clear bind" button when editing an action's bind slot; resets the slot to "null" (displayed as "none")
 
 Ideas for waaaaayyyyyy later:
 - Custom command maker: for perhaps being able to add stuff like custom paint selections on buy menu open (not sure what else this would be used for, though)
@@ -39,21 +38,23 @@ class mapper():
                 return m.width, m.height
 
     def delete_tempfile(self):
-        Path.unlink(Path(f"{os.getcwd()}/xml/.{self.TEMPFILE_NAME}.xml"))
+        Path.unlink(self.TEMPFILE_PATH)
 
     def __init__(self, selected_profile=None):
-        self.TEMPFILE_NAME = "amtemp"
         self.FILE_DEFAULTACTIONMAPS = "xml/default_actionmaps.xml"
         self.xml_dir = Path(f"{os.getcwd()}/xml")
+        self.TEMPFILE_NAME = "amtemp"
+        self.TEMPFILE_PATH = Path(f"{self.xml_dir}/.{self.TEMPFILE_NAME}.xml")
         self.xml_actionmap = Path(f"{self.xml_dir}/default_actionmaps.xml")
         self.dtd_actionmap = Path(f"{self.xml_dir}/actionmaps.dtd")
         self.xml_templates = glob.glob(f"{self.xml_dir}/actionmaps_*.xml")
 
-        self.actionmap_complete = actionmaps()
-        # NOTE: actionmap_complete will only be useful/populated with data after its "load" method has been run
-        self.actionmap_complete.load(self.xml_actionmap, self.dtd_actionmap)
+        self.actionmap_active = actionmaps()
+        # NOTE: actionmap_active will only be useful/populated with data after its "load" method has been run
+        # this is the currently active actionmap
+        self.actionmap_active.load(self.xml_actionmap, self.dtd_actionmap)
         # create list object to hold initially-loaded actionmaps:
-        self.actionmap_master_OG_list = EvalStr(self.actionmap_complete.__str__().removeprefix("actionmaps(").removesuffix(")"))
+        self.actionmap_master_OG_list = EvalStr(self.actionmap_active.__str__().removeprefix("actionmaps(").removesuffix(")"))
         # print("Original AM:", self.actionmap_master_OG_list)
         # create list object to hold what will be the modified actionmaps:
         self.actionmap_master_new_list = self.actionmap_master_OG_list
@@ -162,7 +163,7 @@ class mapper():
         :return: a list of actions and their assigned binds, from the corresponding actionmaps section
         """
 
-        actions_list = self.actionmap_complete.get_section(cat)[0]["action"]
+        actions_list = self.actionmap_active.get_section(cat)[0]["action"]
         print(actions_list)
         return actions_list
 
@@ -516,12 +517,12 @@ class mapper():
         :param newbind: the name of the key to set in the bind slot
         :return:
         """
-        category_chosen = self.actionmap_complete.get_section(category)[0]  # remember that get_section returns a tuple, with the important value being index 0
+        category_chosen = self.actionmap_active.get_section(category)[0]  # remember that get_section returns a tuple, with the important value being index 0
         print(category_chosen)
         # get the index of the actionmaps section being updated:
         category_chosen_index = self.actionmap_master_new_list[0][1]['actionmap'].index(category_chosen)
         print("player section index:", category_chosen_index)
-        action_chosen = self.actionmap_complete.get_action(category, action)[0]  # ditto for get_action, re: returned tuple having important stuff in index 0
+        action_chosen = self.actionmap_active.get_action(category, action)[0]  # ditto for get_action, re: returned tuple having important stuff in index 0
         print(action_chosen)
         ## get the index of the action being modified:
         action_chosen_index = category_chosen['action'].index(action_chosen)
@@ -536,7 +537,17 @@ class mapper():
         self.actionmap_master_new_list[0][1]['actionmap'][category_chosen_index] = category_chosen
         print(self.actionmap_master_new_list)
 
+        # refresh GUI:
+        ## write to temp file:
         self.write_xml_file(self.actionmap_master_new_list, self.TEMPFILE_NAME)
+        ## reload from temp file (make it the active actionmaps):
+        self.actionmap_active.load(self.TEMPFILE_PATH, self.dtd_actionmap)
+        # print(self.actionmap_active.get_action(category, action))
+        ## delete existing interface at its root, and reload it with new one:
+        dpg.delete_item("primary")
+        self.setup_display()
+        dpg.set_primary_window(window=self.main_window, value=True)
+
 
 
     @staticmethod
