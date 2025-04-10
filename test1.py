@@ -2,8 +2,6 @@ import glob
 from pathlib import Path
 import dearpygui.dearpygui as dpg
 from screeninfo import get_monitors
-from default_actionmaps_parser import returnDict as actionmapsdict
-# import pygame, pygame.freetype
 from demos.pynput_demo1 import MouseTracker, KeyboardTracker
 import time
 from ast import literal_eval as EvalStr
@@ -12,7 +10,7 @@ import os
 
 # the following three lines MUST be placed BEFORE the import statement that follows them!
 dpg.create_context()
-dpg.create_viewport(title="test1")
+dpg.create_viewport(title="pyActionmapper")
 dpg.configure_viewport(0, width=920, height=600, max_width=920, decorated=True, resizable=False)
 
 from theme import global_theme, invisible_button_theme
@@ -22,10 +20,14 @@ from pyactionmapper.structure import actionmaps
 
 """
 TODO:
-IDEA_1: "Clear bind" button when editing an action's bind slot; resets the slot to "null" (displayed as "none")
+TASK_1: "Clear bind" button when editing an action's bind slot; resets the slot to "null" (displayed as "none")
+
+QoL IDEAS:
+IDEA_1: Have the action name in the bind edit popup window be displayed in a distinguishably different color and/or bold 
 
 Ideas for waaaaayyyyyy later:
-- Custom command maker: for perhaps being able to add stuff like custom paint selections on buy menu open (not sure what else this would be used for, though)
+IDEA_1: Actual joystick/controller support
+IDEA_2: Custom command maker: for perhaps being able to add stuff like custom paint selections on buy menu open (not sure what else this would be used for, though)
 """
 
 class mapper():
@@ -98,13 +100,13 @@ class mapper():
             self.profile_player_name = dpg.add_text(parent=self.binds_display, default_value="Profile: MechWarrior")
 
             # establish our tab bar and all child tabs:
-            self.main_tab_bar = dpg.add_tab_bar(parent=self.binds_display)
+            self.main_tab_bar = dpg.add_tab_bar(parent=self.binds_display, tag="tabbar_main")
             self.main_tab_player = dpg.add_tab(parent=self.main_tab_bar, tag="tabbar_tab_player", label="Player")
             self.main_tab_vehicle = dpg.add_tab(parent=self.main_tab_bar, tag="tabbar_tab_vehicle", label="Vehicle")
             self.main_tab_mech = dpg.add_tab(parent=self.main_tab_bar, tag="tabbar_tab_mech", label="Mech")
             self.main_tab_tank = dpg.add_tab(parent=self.main_tab_bar, tag="tabbar_tab_tank", label="Tank")
             self.main_tab_vtol = dpg.add_tab(parent=self.main_tab_bar, tag="tabbar_tab_vtol", label="VTOL")
-            self.main_tab_aerospace = dpg.add_tab(parent=self.main_tab_bar, tag="tabbar_tab_aero", label="Aerospace")
+            self.main_tab_aerospace = dpg.add_tab(parent=self.main_tab_bar, tag="tabbar_tab_aerospace", label="Aerospace")
 
             # establish tab contents:
             self.tab_contents_player = self.tab_contents(parent=self.main_tab_player, ctrlcat="player")
@@ -114,9 +116,6 @@ class mapper():
             self.tab_contents_vtol = self.tab_contents(parent=self.main_tab_vtol, ctrlcat="vtol")
             self.tab_contents_aerospace = self.tab_contents(parent=self.main_tab_aerospace, ctrlcat="aerospace")
 
-
-            # self.binds_configure = dpg.add_child_window(parent=self.main_window, pos=[500, 16], width=400, resizable_x=False)
-            # self.binds_test_text = dpg.add_text(parent=self.binds_configure, default_value="binds configuration happens here", pos=[0, 0])
 
             # bind item-specific handlers:
 
@@ -175,8 +174,6 @@ class mapper():
         :return: the final window with populated table
         """
 
-        # controlcategory_dict = actionmapsdict(self.FILE_DEFAULTACTIONMAPS)[ctrlcat]
-        # print(controlcategory_dict)
         controlcategory_list = self.load_actionmap_as_list(ctrlcat)
         controlcategory = dpg.add_child_window(parent=parent)
         with dpg.table(parent=controlcategory, header_row=True, resizable=True):
@@ -291,159 +288,6 @@ class mapper():
             # print(dpg.get_value(rebindwindow_inputdevicetype))
             dpg.bind_item_font(rebindwindow_prompttext, self.header_font)
 
-        # get_user_input = self.get_user_device_input()
-
-
-
-    """def get_user_device_input(self):
-        # 
-        # This function is needed to get user key/mouse/joystick inputs and format their names into terms that Crysis Wars will understand
-        # :return:
-        # 
-
-        key_name = ""
-        mouse_pressed = ""
-        mouse_scroll = ""
-        mouse_dir = ""
-
-        active_input = "Press a key"
-
-        pygame.init()
-        pygame.font.init()
-        clock = pygame.time.Clock()
-
-        # takeover_size_W = self.PRIMARY_MONITOR_RES_W // 2
-        # takeover_size_H = self.PRIMARY_MONITOR_RES_H // 2
-
-        takeover_size_W = dpg.get_viewport_width()
-        takeover_size_H = dpg.get_viewport_height()
-
-        takeover_pos_X = dpg.get_viewport_pos()[0]
-        takeover_pos_Y = dpg.get_viewport_pos()[1]
-
-        os.environ['SDL_VIDEO_WINDOW_POS'] = "%d, %d" % (takeover_pos_X, takeover_pos_Y)
-
-        screen = pygame.display.set_mode(size=(takeover_size_W, takeover_size_H), flags=pygame.NOFRAME)
-        screen.fill((255, 255, 255, 0))
-        a_font = pygame.font.Font("fonts/27_RussellSquare.ttf", 24)
-        while True:
-            key_press = a_font.render(f"{active_input}", True, (255, 0, 0))
-            screen.blit(source=key_press, dest=(takeover_size_W // 2, takeover_size_H // 2))
-            print(active_input)
-            pygame.display.flip()
-            clock.tick(60)
-            while key_name == "" and mouse_pressed == "" and mouse_scroll == "" and mouse_dir == "":
-                for event in pygame.event.get():
-                    mouse1, mouse3, mouse2, mouse4, mouse5 = pygame.mouse.get_pressed(num_buttons=5)
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
-                    if event.type == pygame.KEYDOWN:
-                        key_name = pygame.key.name(event.key)
-                        # rename keys as necessary
-                        if key_name == "\\":
-                            key_name = "backslash"
-                        if key_name == "'":
-                            key_name = "apostrophe"
-                        if key_name == ";":
-                            key_name = "semicolon"
-                        if key_name == ".":
-                            key_name = "period"
-                        if key_name == ",":
-                            key_name = "comma"
-                        if key_name == "enter":
-                            key_name = "np_enter"
-                        if key_name == "return":
-                            key_name = "enter"
-                        if key_name == "right alt":
-                            key_name = "ralt"
-                        if key_name == "left alt":
-                            key_name = "lalt"
-                        if key_name == "right ctrl":
-                            key_name = "rctrl"
-                        if key_name == "left ctrl":
-                            key_name = "lctrl"
-                        if key_name == "right shift":
-                            key_name = "rshift"
-                        if key_name == "left shift":
-                            key_name = "lshift"
-                        if key_name == "page up":
-                            key_name = "pgup"
-                        if key_name == "page down":
-                            key_name = "pgdn"
-                        if key_name == "[1]":
-                            key_name = "np_1"
-                        if key_name == "[2]":
-                            key_name = "np_2"
-                        if key_name == "[3]":
-                            key_name = "np_3"
-                        if key_name == "[4]":
-                            key_name = "np_4"
-                        if key_name == "[5]":
-                            key_name = "np_5"
-                        if key_name == "[6]":
-                            key_name = "np_6"
-                        if key_name == "[7]":
-                            key_name = "np_7"
-                        if key_name == "[8]":
-                            key_name = "np_8"
-                        if key_name == "[9]":
-                            key_name = "np_9"
-                        if key_name == "[0]":
-                            key_name = "np_0"
-                        if key_name == "[*]":
-                            key_name = "np_multiply"
-                        if key_name == "[/]":
-                            key_name = "np_divide"
-                        if key_name == "[+]":
-                            key_name = "np_add"
-                        if key_name == "[-]":
-                            key_name = "np_subtract"
-                        if key_name == "[.]":
-                            key_name = "np_period"
-                        print(key_name)
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        if mouse1:
-                            mouse_pressed = "mouse1"
-                            print(mouse_pressed)
-                        if mouse2:
-                            mouse_pressed = "mouse2"
-                            print(mouse_pressed)
-                        if mouse3:
-                            mouse_pressed = "mouse3"
-                            print(mouse_pressed)
-                        if mouse4:
-                            mouse_pressed = "mouse4"
-                            print(mouse_pressed)
-                        if mouse5:
-                            mouse_pressed = "mouse5"
-                            print(mouse_pressed)
-                    if event.type == pygame.MOUSEWHEEL:
-                        if event.y > 0:
-                            mouse_scroll = "mwheel_up"
-                            print(mouse_scroll)
-                        if event.y < 0:
-                            mouse_scroll = "mwheel_down"
-                            print(mouse_scroll)
-                    if event.type == pygame.MOUSEMOTION:
-                        if event.pos[0] != 0 and event.pos[1] == 0:
-                            mouse_dir = "maxis_y"
-                            print(mouse_dir)
-                        if event.pos[1] != 0 and event.pos[0] == 0:
-                            mouse_dir = "maxis_x"
-                            print(mouse_dir)
-            for input_cat in [key_name, mouse_pressed, mouse_scroll, mouse_dir]:
-                if input_cat != "":
-                    active_input = input_cat
-                    print(active_input)
-
-            time.sleep(0.5)
-            pygame.quit()
-            break
-
-        print(active_input)
-        return active_input
-"""
-
     def get_user_device_input_pynput(self, devicetype):
         # print(devicetype)
         dpg.configure_item("rebind_popup", show=False)
@@ -543,10 +387,13 @@ class mapper():
         ## reload from temp file (make it the active actionmaps):
         self.actionmap_active.load(self.TEMPFILE_PATH, self.dtd_actionmap)
         # print(self.actionmap_active.get_action(category, action))
+        dpg.set_viewport_title("pyActionmapper *")
         ## delete existing interface at its root, and reload it with new one:
         dpg.delete_item("primary")
         self.setup_display()
         dpg.set_primary_window(window=self.main_window, value=True)
+        # also bring the user back to the tab they were working in:
+        dpg.set_value(item="tabbar_main", value=f"tabbar_tab_{category.lower()}")
 
 
 
