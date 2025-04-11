@@ -20,10 +20,13 @@ from pyactionmapper.structure import actionmaps
 
 """
 TODO:
-TASK_1: "Clear bind" button when editing an action's bind slot; resets the slot to "null" (displayed as "none")
+TASK_1: Implement saving to new xml
+TASK_2: Implement interface with user profiles (accessing their actionmaps files, profile names)
+TASK_3: Implement "Help", a  guide to using pyAM
 
 QoL IDEAS:
-IDEA_1: Have the action name in the bind edit popup window be displayed in a distinguishably different color and/or bold 
+IDEA_1: Have the action name in the bind edit popup window be displayed in a distinguishably different color and/or bold
+IDEA_2: May need to up scaling of some elements/text 
 
 Ideas for waaaaayyyyyy later:
 IDEA_1: Actual joystick/controller support
@@ -47,7 +50,8 @@ class mapper():
         self.xml_dir = Path(f"{os.getcwd()}/xml")
         self.TEMPFILE_NAME = "amtemp"
         self.TEMPFILE_PATH = Path(f"{self.xml_dir}/.{self.TEMPFILE_NAME}.xml")
-        self.xml_actionmap = Path(f"{self.xml_dir}/default_actionmaps.xml")
+        self.xml_actionmap = Path(f"{self.xml_dir}/default_actionmaps.xml")         # default actionmaps
+        # self.xml_actionmap = Path(f"{self.xml_dir}/active_actionmaps.xml")
         self.dtd_actionmap = Path(f"{self.xml_dir}/actionmaps.dtd")
         self.xml_templates = glob.glob(f"{self.xml_dir}/actionmaps_*.xml")
 
@@ -209,21 +213,6 @@ class mapper():
                     dpg.bind_item_handler_registry(bind1_text, "widget_handler")
                     dpg.bind_item_handler_registry(bind2_text, "widget_handler")
 
-            # for action in controlcategory_dict:
-            #     print(controlcategory_dict[action])
-            #     with dpg.table_row(tag=f"table_{ctrlcat}_row_{action}") as bind_row:
-            #         print(f"bind_row: {dpg.get_item_alias(bind_row)}")         # trying to identify which integers correspond to which UI widgets/elements...
-            #         action_text = dpg.add_text(f"{action}")
-            #         print(action_text)
-            #         action_bind1 = controlcategory_dict[action][0]
-            #         bind1_text = dpg.add_selectable(label=f"{action_bind1}", tag=f"{ctrlcat}#{action}#bind1#{action_bind1}", callback=self.pass_selected_actionbind)
-            #         dpg.bind_item_handler_registry(bind1_text, "widget_handler")
-            #         print(bind1_text)
-            #         action_bind2 = controlcategory_dict[action][1]
-            #         bind2_text = dpg.add_selectable(label=f"{action_bind2}", tag=f"{ctrlcat}#{action}#bind2#{action_bind2}", callback=self.pass_selected_actionbind)
-            #         dpg.bind_item_handler_registry(bind2_text, "widget_handler")
-            #         print(bind2_text)
-
         return controlcategory
 
     def pass_selected_actionbind(self, bindtag):
@@ -269,7 +258,7 @@ class mapper():
                         pos=[int(dpg.get_viewport_max_width()//2) - 125, int(dpg.get_viewport_height()//2) - 75],
                         modal=True,
                         popup=True) as self.rebindwindow:
-            rebindwindow_prompttext = dpg.add_text(f"Rebind {action} ({bindnum}) to")
+            rebindwindow_prompttext = dpg.add_text(f"Rebind {action} ({bindnum}) to", wrap=250)
             rebindwindow_promptfield = dpg.add_input_text(default_value=f"{bind} (current)", auto_select_all=True, readonly=True, tag="rebindwindow_promptfield")
             # put section on right half of window that gives the user options to choose input method (from dropdown menu; kbd/m/jstk-cntrlr)
             # selecting one of these options will then open a screen prompting the user to press a key or move their mouse/press mouse button
@@ -284,6 +273,8 @@ class mapper():
             with dpg.group(horizontal=True):
                 dpg.add_button(label="confirm", callback=lambda: [self.on_keybind_prompt_confirm(category=category, action=action, bindnum=bind_slot, newbind=dpg.get_value("rebindwindow_promptfield")), dpg.delete_item("rebind_popup")])
                 dpg.add_button(label="cancel", callback=lambda: dpg.delete_item("rebind_popup"))
+                dpg.add_spacer(width=65)
+                dpg.add_button(label="clear bind", callback=lambda: dpg.configure_item("rebindwindow_promptfield", default_value="none"))
 
             # print(dpg.get_value(rebindwindow_inputdevicetype))
             dpg.bind_item_font(rebindwindow_prompttext, self.header_font)
@@ -361,6 +352,7 @@ class mapper():
         :param newbind: the name of the key to set in the bind slot
         :return:
         """
+        newbind = str(newbind).removesuffix(" (current)")
         category_chosen = self.actionmap_active.get_section(category)[0]  # remember that get_section returns a tuple, with the important value being index 0
         print(category_chosen)
         # get the index of the actionmaps section being updated:
@@ -370,7 +362,9 @@ class mapper():
         print(action_chosen)
         ## get the index of the action being modified:
         action_chosen_index = category_chosen['action'].index(action_chosen)
-        print("givemecbills action index:", action_chosen_index)
+        print("action index:", action_chosen_index)
+        if newbind == "none":
+            newbind = "null"
         ## update chosen keybind of said action:
         action_chosen['key'][bindnum]['@name'] = newbind
         print(action_chosen)
