@@ -64,33 +64,37 @@ def elem2dict2019(node):
 
 # classes arranged from least to most specific.
 class profile():
-    def __init__(self,profile_dir,test_mode=False):
+    def __init__(self, profile_dir, test_mode=False):
         self.modified = False
-        self.dir=profile_dir
-        self.name=profile.get_profile_name(self.dir)
-        self.xml_actionmaps=Path(f"{self.dir}/actionmaps.xml")
-        self.actionmaps=actionmaps()
-        self.backup_dir=Path(f"{self.dir}/backup")
+        self.profile_dir = profile_dir
+        self.name = profile.get_profile_name(self.profile_dir)
+        self.xml_actionmaps = Path(f"{self.profile_dir}/mechwarrior_actionmaps.xml")
+        self.actionmaps = actionmaps()
+        self.backup_dir = Path(f"{self.profile_dir}/backup")
 
+    @staticmethod
     def get_profile_name(profile_dir):
         # function to get the profile name given a profile dir.
         profile_name=None
         # the profile xml is very simple, it should have a single "Profile" element with one "Name" attribute.
-        with open(Path(f"{profile_dir}/profile.xml")) as file_h:
-            profile_dict=xmltodict.parse(file_h.read(),attr_prefix=actionmaps.attr_prefix)
-        pkey=profile_dict.keys()
-        if len(pkey)==1:
-            pkey=list(pkey)[0]
-        if type(pkey) is not list and pkey.lower() == "profile":
-            p_dict=profile_dict[pkey]
-        nkey=p_dict.keys()
-        if len(nkey)==1:
-            nkey=list(nkey)[0]
-        if type(nkey) is not list and nkey.lower() == "name":
-            profile_name=p_dict[nkey]
-        if profile_name is None:
-            print("Error getting profile name, assuming directory is good enough")
-            profile_name = os.path.basename(profile_dir)
+        try:
+            with open(Path(f"{profile_dir}/profile.xml")) as file_h:
+                profile_dict=xmltodict.parse(file_h.read(), attr_prefix=actionmaps.attr_prefix)
+            pkey=profile_dict.keys()
+            if len(pkey)==1:
+                pkey=list(pkey)[0]
+            if type(pkey) is not list and pkey.lower() == "profile":
+                p_dict=profile_dict[pkey]
+            nkey=p_dict.keys()
+            if len(nkey)==1:
+                nkey=list(nkey)[0]
+            if type(nkey) is not list and nkey.lower() == "@name":
+                profile_name=p_dict[nkey]
+            if profile_name is None:
+                print("Error getting profile name, assuming directory is good enough")
+                profile_name = os.path.basename(profile_dir)
+        except FileNotFoundError:
+            print("No profile.xml file found!")
         return profile_name
 
     def load_actionmaps(self,validator=None):
@@ -176,10 +180,10 @@ class actionmaps(collections.OrderedDict):
             if validator is not None:
                 dtd=etree.DTD(validator)
                 if not dtd.validate(tree):
-                    print('XML DTD validation failed Errors:{}'.format(
-                    str(dtd.error_log.filter_from_errors())))
+                    print('XML DTD validation failed Errors:{}'.format(str(dtd.error_log.filter_from_errors())))
                     self.xml_valid=False
                     print(f"FAILED Validation! - {input}")
+                    raise Exception('XML DTD validation failed\n Errors:\n{}'.format(str(dtd.error_log.filter_from_errors())))
                 else:
                     print(f"Validation passed! - {input}")
                     self.xml_valid=True
