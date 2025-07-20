@@ -1,0 +1,18 @@
+
+<!ELEMENT ActionMaps (actionmap)*>
+<!ELEMENT actionmap (action)*>
+<!ATTLIST actionmap
+        name CDATA #REQUIRED
+        version CDATA #REQUIRED>
+<!ELEMENT action (key)*>
+<!ATTLIST action
+        consoleCmd CDATA #IMPLIED
+        name CDATA #REQUIRED
+        noModifiers CDATA #IMPLIED
+        onHold CDATA #IMPLIED
+        onPress CDATA #IMPLIED
+        onRelease CDATA #IMPLIED
+        retriggerable CDATA #IMPLIED>
+<!ELEMENT key (#PCDATA)>
+<!ATTLIST key
+        name CDATA #REQUIRED>

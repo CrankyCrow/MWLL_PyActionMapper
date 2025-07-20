@@ -2,6 +2,7 @@ import time
 import glob
 from pathlib import Path
 import dearpygui.dearpygui as dpg
+import lxml.etree as xmlementtree
 from screeninfo import get_monitors
 from ast import literal_eval as EvalStr
 import xmltodict
@@ -33,15 +34,13 @@ class PyMapper:
         self.PRIMARY_MONITOR_RES_W = monitor_res[0]
         self.PRIMARY_MONITOR_RES_H = monitor_res[1]
 
-        self.VERSION = "idk"
+        self.VERSION = "0.0.4"
 
         # establish vars for config management
         self.config = config_management.Config()
-        self.config_exists = False
         self.config_setting_dontaskagain = False
         self.config_profiles_names_list = []
 
-        self.profile_player_name = dpg.get_value("tracker_str_selectedprofile")
         self.profile_player_actionmap_path = ""
 
         self.xml_dir = Path(f"{os.getcwd()}/xml")
@@ -49,6 +48,7 @@ class PyMapper:
         self.TEMPFILE_PATH = Path(f"{self.xml_dir}/{self.TEMPFILE_NAME}.xml")
         self.xml_default_actionmap = Path(f"{self.xml_dir}/default_actionmaps.xml")  # default actionmaps
         self.dtd_actionmap = Path(f"{self.xml_dir}/actionmaps.dtd")
+        self.dtd_game_gen_actionmap = Path(f"{self.xml_dir}/game_gen_actionmaps.dtd")
         self.xml_templates = glob.glob(f"{self.xml_dir}/actionmaps_*.xml")
 
         self.actionmap_active = actionmaps()
@@ -92,9 +92,17 @@ class PyMapper:
 
     def load_actionmaps(self, actionmap_xml):
         # redefine which actionmap file is loaded, as both active and save state instances
-        self.actionmap_active.load(actionmap_xml,
-                                   self.dtd_actionmap)  # this is the currently active actionmap
-        self.actionmap_saved.load(actionmap_xml, self.dtd_actionmap)
+        try:
+            print(f"trying to validate {actionmap_xml} with {self.dtd_actionmap.name}...")
+            dpg.set_value("tracker_str_selectedprofile_actionmaps", value=actionmap_xml)
+            self.actionmap_active.load(actionmap_xml, self.dtd_actionmap)  # this is the currently active actionmap
+            self.actionmap_saved.load(actionmap_xml, self.dtd_actionmap)
+        except xmlementtree.DTDParseError:
+            print(f"trying to validate {actionmap_xml} with {self.dtd_game_gen_actionmap.name}...")
+            self.actionmap_active.load(actionmap_xml,
+                                       self.dtd_game_gen_actionmap)
+            self.actionmap_saved.load(actionmap_xml, self.dtd_game_gen_actionmap)
+
         # create list object to hold initially-loaded actionmaps:
         self.actionmap_master_OG_list = EvalStr(
             self.actionmap_saved.__str__().removeprefix("actionmaps(").removesuffix(")"))
@@ -176,25 +184,29 @@ class PyMapper:
             with dpg.menu_bar(tag="primary_menubar", parent="primary"):
                 with dpg.menu(label="File"):
                     # dpg.add_menu_item(label="Switch Profile", callback=self.on_switchprofile_prompt)                               # open a different profile's actionmaps
-                    dpg.add_menu_item(label="Reset to default", callback=self.on_reset_prompt)         # reset current actionmap to last saved version of current actionmap
-                    dpg.add_menu_item(label="Reset changes")
-                    dpg.add_menu_item(label="New")                                          # create a new actionmap
+                    # dpg.add_menu_item(label="Reset to default", callback=self.on_reset_prompt)         # reset current actionmap to last saved version of current actionmap
+                    # dpg.add_menu_item(label="Reset changes")
+                    # dpg.add_menu_item(label="New")                                          # create a new actionmap
                     dpg.add_menu_item(label="Open", callback=self.on_open_prompt)           # browse to and open an existing actionmap
-                    dpg.add_menu_item(label="Save", callback=self.on_save_prompt)           # save actionmap to a file
+                    dpg.add_menu_item(label="Save As", callback=self.on_save_prompt)           # save actionmap to a file
                     dpg.add_separator()
                     dpg.add_menu_item(label="Exit", callback=self.exit_window)
                 # with dpg.menu(label="Tools"):
                 #     dpg.add_menu_item(label="Generate Keymap Diagram")          # implement later, see @TO-DO#QOL_IDEA_3
                 with dpg.menu(label="Help"):
-                    dpg.add_menu_item(label="Usage guide (opens in browser)", callback=None)            # implement later
-                    dpg.add_separator()
+                    # dpg.add_menu_item(label="Usage guide (opens in browser)", callback=None)            # implement later
+                    # dpg.add_separator()
                     dpg.add_menu_item(label="About", callback=self.on_about_dialogbox)
 
             dpg.add_child_window(tag="binds_display", parent=self.main_window, pos=[0, 16], width=904, resizable_x=False, show=True, always_auto_resize=True)
 
-            with dpg.group(tag="profile_name_display", parent="binds_display", horizontal=True, horizontal_spacing=1):
-                dpg.add_text("Profile:", tag="profile_player_name_display_field", parent="profile_name_display")
-                dpg.add_text("", tag="profile_player_name_display_name", source="tracker_str_selectedprofile", indent=60)
+            with dpg.group(tag="profile_info_display", parent="binds_display", horizontal=False):
+                with dpg.group(tag="profile_info_player_name_group", parent="profile_info_display", horizontal=True):
+                    dpg.add_text("Profile:", tag="profile_info_player_name_prompt", parent="profile_info_player_name_group")
+                    dpg.add_text("", tag="profile_info_player_name", parent="profile_info_player_name_group", source="tracker_str_selectedprofile", indent=60)
+                with dpg.group(tag="profile_info_player_actionmaps_path_group", parent="profile_info_display", horizontal=True):
+                    dpg.add_text("Current Actionmaps:", tag="profile_info_player_actionmaps_path_prompt", parent="profile_info_player_actionmaps_path_group")
+                    dpg.add_text("", tag="profile_info_player_actionmaps_path", source="tracker_str_selectedprofile_actionmaps", parent="profile_info_player_actionmaps_path_group")
 
             # establish our tab bar and all child tabs:
             dpg.add_tab_bar(tag="tabbar_main", parent="binds_display")
@@ -217,9 +229,9 @@ class PyMapper:
             dpg.bind_font(default_font)
 
             # configure individual item fonts:
-            dpg.bind_item_font("primary_menubar", default_font)
-            dpg.bind_item_font("profile_player_name_display_field", header_font)
-            dpg.bind_item_font("profile_player_name_display_name", header_font)
+            # dpg.bind_item_font("primary_menubar", default_font)
+            dpg.bind_item_font("profile_info_player_name_prompt", header_font)
+            dpg.bind_item_font("profile_info_player_name", header_font)
             dpg.bind_item_font("tabbar_main", header_font)
             dpg.bind_item_font("tabbar_tab_player", header_font)
             dpg.bind_item_font("tabbar_tab_vehicle", header_font)
@@ -449,8 +461,9 @@ class PyMapper:
         ## write to temp file:
         self.write_xml_file(self.actionmap_master_new_list, istemp=True)
         ## reload from temp file (make it the active actionmaps):
-        self.actionmap_active.load(self.TEMPFILE_PATH, self.dtd_actionmap)
+        # self.actionmap_active.load(self.TEMPFILE_PATH, self.dtd_actionmap)
         # print(self.actionmap_active.get_action(category, action))
+        self.load_actionmaps(self.TEMPFILE_PATH)
         dpg.set_viewport_title("pyActionmapper *")
         ## delete existing interface at its root, and reload it with new one:
         dpg.delete_item("primary")
