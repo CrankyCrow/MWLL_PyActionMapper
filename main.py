@@ -14,13 +14,12 @@ import config_management
 # the following three lines MUST be placed BEFORE the import statement that follows them!
 dpg.create_context()
 dpg.create_viewport(title="pyActionmapper")
-dpg.configure_viewport(0, width=920, height=600, max_width=920, decorated=True, resizable=False)
+dpg.configure_viewport(0, width=920, height=600, max_width=920, max_height=600, decorated=True, resizable=False)
 
-from theme import global_theme, invisible_button_theme
+from theme_registry import global_theme, invisible_button_theme
 from gui_elements import *
 
 from structure.structure import actionmaps
-from structure.structure import profile as profilereader
 from profile_select import ProfileSelect
 
 class PyMapper:
@@ -28,7 +27,6 @@ class PyMapper:
         with dpg.value_registry():
             dpg.add_string_value(tag="tracker_str_selectedprofile", default_value="MechWarrior")
             dpg.add_string_value(tag="tracker_str_selectedprofile_actionmaps", default_value="")
-            dpg.add_bool_value(tag="tracker_bool_profileselect_dontaskagain", default_value=False)
 
         monitor_res = self.get_monitor_res()
         self.PRIMARY_MONITOR_RES_W = monitor_res[0]
@@ -208,6 +206,8 @@ class PyMapper:
                     dpg.add_text("Current Actionmaps:", tag="profile_info_player_actionmaps_path_prompt", parent="profile_info_player_actionmaps_path_group")
                     dpg.add_text("", tag="profile_info_player_actionmaps_path", source="tracker_str_selectedprofile_actionmaps", parent="profile_info_player_actionmaps_path_group")
 
+            dpg.add_separator(parent="binds_display")
+
             # establish our tab bar and all child tabs:
             dpg.add_tab_bar(tag="tabbar_main", parent="binds_display")
             dpg.add_tab(tag="tabbar_tab_player", parent="tabbar_main", label="Player")
@@ -229,7 +229,6 @@ class PyMapper:
             dpg.bind_font(default_font)
 
             # configure individual item fonts:
-            # dpg.bind_item_font("primary_menubar", default_font)
             dpg.bind_item_font("profile_info_player_name_prompt", header_font)
             dpg.bind_item_font("profile_info_player_name", header_font)
             dpg.bind_item_font("tabbar_main", header_font)
@@ -514,7 +513,7 @@ class PyMapper:
         popup_width = dpg.get_item_width("save_good_popup")
         popup_height = dpg.get_item_height("save_good_popup")
         print(popup_width, popup_height)
-        dpg.set_item_pos("save_good_popup",[(viewport_width // 2) - (popup_width // 2), (viewport_height // 2) - (popup_height // 2)])
+        dpg.set_item_pos("save_good_popup", [(viewport_width // 2) - (popup_width // 2), (viewport_height // 2) - (popup_height // 2)])
         print("file saved successfully")
         time.sleep(2)
         dpg.delete_item("save_good_popup")
@@ -624,7 +623,5 @@ if __name__ == '__main__':
 dpg.show_viewport()
 dpg.setup_dearpygui()
 dpg.start_dearpygui()
-# while dpg.is_dearpygui_running():
-#     dpg.render_dearpygui_frame()
 dpg.destroy_context()
 

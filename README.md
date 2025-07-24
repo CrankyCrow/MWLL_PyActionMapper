@@ -13,6 +13,6 @@ Made with the [dearpygui](https://github.com/hoffstadt/DearPyGui) framework, [sc
 * **IDEA_2**: May need to up scaling of some elements/text 
 
 ### IDEAS FOR WAAAAAAYYYYYY LATER:
-* **IDEA_1**: Actual joystick/controller support
+* **IDEA_1**: Actual joystick/controller support (might not even need it)
 * **IDEA_2**: Custom command maker: for perhaps being able to add stuff like custom paint selections on buy menu open (not sure what else this would be used for, though)
 * **IDEA_3**: Graphical, dynamic keybind map a la UserControlMap.png on wiki

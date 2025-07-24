@@ -1,38 +1,20 @@
 import dearpygui.dearpygui as dpg
 from config_management import Config
-# from main import mapper
-
-# the following three lines MUST be placed BEFORE the import statement that follows them!
-dpg.create_context()
-# dpg.create_viewport(title="Startup Profile Selection")
-# dpg.configure_viewport(0, width=300, height=150, max_width=300, decorated=True, resizable=False)
-
-from theme import global_theme, invisible_button_theme
+from gui_elements import *
 
 class ProfileSelect:
     def __init__(self, profiles_list, callback):
         self.on_startup_profile_prompt(profiles_list, callback)
-        # dpg.set_primary_window(window=self.profile_popup, value=True)
         self.config = Config()
 
-        # dpg.setup_dearpygui()
-        # dpg.show_viewport()
-        # # dpg.start_dearpygui()
-        # while dpg.is_dearpygui_running():
-        #     dpg.render_dearpygui_frame()
-        # dpg.destroy_context()
 
     def on_startup_profile_prompt(self, profiles_list, callback):
         with dpg.value_registry():
             dpg.add_bool_value(tag="tracker_bool_dontaskagain")
             dpg.add_string_value(tag="tracker_str_defaultprofile")
 
-        with dpg.font_registry():
-            self.default_font = dpg.add_font("fonts/27_RussellSquare.ttf", 12)
-            self.header_font = dpg.add_font("fonts/27_RussellSquare.ttf", 14)
-
         # configure global font:
-        dpg.bind_font(self.default_font)
+        dpg.bind_font(default_font)
 
         with dpg.window(label=f"Startup Profile Selection",
                         tag="startup_profile_popup",
@@ -63,11 +45,6 @@ class ProfileSelect:
         # dpg.stop_dearpygui()
         dpg.delete_item("startup_profile_popup")
 
-
-
-# plist = ["MechWarrior", "[SA] Bird_Thing"]
-# if __name__ == '__main__':
-#     profile_select = ProfileSelect(plist)
 
 
 
