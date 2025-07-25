@@ -16,12 +16,11 @@ with dpg.theme() as global_theme:
 
         dpg.add_theme_color(dpg.mvThemeCol_Text, (200, 200, 200), category=dpg.mvThemeCat_Core)
 
-    with dpg.theme(tag="error_popup_theme"):
-        with dpg.theme_component(dpg.mvAll):
-            dpg.add_theme_color(dpg.mvThemeCol_Button, (248, 248, 248))
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (248, 248, 248))
-            dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (248, 248, 248))
-            dpg.add_theme_color(dpg.mvThemeCol_Text, (18, 18, 19))
+with dpg.theme() as error_popup_theme:
+    with dpg.theme_component(dpg.mvAll):
+        dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (200, 40, 0))
+        dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (236, 51, 29))
+        dpg.add_theme_color(dpg.mvThemeCol_TitleBgActive, (200, 40, 0))
 
 with dpg.theme(default_theme=True) as invisible_button_theme:
     with dpg.theme_component(dpg.mvAll):

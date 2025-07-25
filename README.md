@@ -1,4 +1,4 @@
-# MWLL_PyActionMapper
+# pyActionmapper
 pyActionmapper is a Python-based keybind editor designed for [MechWarrior: Living Legends](https://mechlivinglegends.net/)
 
 Made with the [dearpygui](https://github.com/hoffstadt/DearPyGui) framework, [screeninfo](https://pypi.org/project/screeninfo/), [lxml](https://pypi.org/project/lxml/), and [xmltodict](https://pypi.org/project/xmltodict/).

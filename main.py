@@ -16,7 +16,7 @@ dpg.create_context()
 dpg.create_viewport(title="pyActionmapper")
 dpg.configure_viewport(0, width=920, height=600, max_width=920, max_height=600, decorated=True, resizable=False)
 
-from theme_registry import global_theme, invisible_button_theme
+from theme_registry import global_theme, invisible_button_theme, error_popup_theme
 from gui_elements import *
 
 from structure.structure import actionmaps
@@ -82,7 +82,7 @@ class PyMapper:
 
         #check that the [user home]/Profiles folder
         if profilefolder_missing or (len(os.listdir(self.profiles_root)) == 0):
-            error_msg = "No profiles found in My Documents\\My Games\\Crysis Wars\\Profiles!\nYou must create a new profile in Crysis Wars before using this application."
+            error_msg = "No profiles found in My Documents\\My Games\\Crysis Wars\\Profiles!\n\nYou must create a new profile in Crysis Wars before using this application.\n"
             self.on_error_popup(error_title="No profiles found, exiting!", error_msg=error_msg, showbutton=True, callback=self.exit_window)
 
         # assuming profiles' root folder exists, detect whether a config.ini file exists in the root dir
@@ -184,11 +184,15 @@ class PyMapper:
                         popup=True,
                         no_close=True):
             dpg.add_text(error_msg, wrap=400)
-            dpg.add_button(label="Okay", show=showbutton, callback=callback)
+            dpg.add_spacer(width=dpg.get_item_width("error_popup"), height=5)
+            dpg.add_button(label="Okay", tag="error_popup_button_okay", show=showbutton, callback=callback)
 
         dpg.configure_item("error_popup", pos=[
             int(dpg.get_viewport_max_width() // 2) - (dpg.get_item_width("error_popup") // 2),
-            int(dpg.get_viewport_height() // 2) - (dpg.get_item_height("error_popup") // 2)])
+            int(dpg.get_viewport_height() // 2) - (dpg.get_item_height("error_popup") // 2)
+        ])
+
+        dpg.bind_item_theme(item="error_popup", theme=error_popup_theme)
 
     def setup_display(self):
         # dpg.set_frame_callback(5, callback=self.startup_check_config)
