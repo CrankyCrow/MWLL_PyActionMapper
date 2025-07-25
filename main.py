@@ -35,7 +35,15 @@ class PyMapper:
         self.VERSION = "0.0.4"
 
         # establish vars for config management
-        self.config = config_management.Config()
+        ## get the root path to all profiles:
+        homedir = os.path.expanduser("~/")
+        self.profiles_root = os.path.join(homedir, "Documents/My Games/Crysis Wars/Profiles")
+        profilefolder_missing = False
+        try:
+            self.config = config_management.Config(profiles_root=self.profiles_root)
+        except FileNotFoundError:
+            profilefolder_missing = True
+        print("profile folder missing?", profilefolder_missing)
         self.config_setting_dontaskagain = False
         self.config_profiles_names_list = []
 
@@ -72,19 +80,25 @@ class PyMapper:
 
         dpg.set_exit_callback(callback=self.delete_tempfile)
 
-        # detect whether a config.ini file exists in the root dir
-        # if it doesn't prompt the user to generate one via the profile selection screen, before they can use the rest of the software
-        if not os.path.exists("config.ini"):
-            print("No config.ini found! Prompting user for initial profile selection...")
-            self.config.createConfig(defaultprofile="None", dontaskagain=False)         # generate placeholder config
-            self.prompt_profileselect_default()
-        else:
-            print("config.ini found, checking if user asked to be prompted again...")
-            self.get_configdata()
-            print("config dontaskagain:", self.config_setting_dontaskagain)
-            if not self.config_setting_dontaskagain:
-                print("user did want to be asked again...")
+        #check that the [user home]/Profiles folder
+        if profilefolder_missing or (len(os.listdir(self.profiles_root)) == 0):
+            error_msg = "No profiles found in My Documents\\My Games\\Crysis Wars\\Profiles!\nYou must create a new profile in Crysis Wars before using this application."
+            self.on_error_popup(error_title="No profiles found, exiting!", error_msg=error_msg, showbutton=True, callback=self.exit_window)
+
+        # assuming profiles' root folder exists, detect whether a config.ini file exists in the root dir
+        # if config file doesn't exist, prompt the user to generate one via the profile selection screen, before they can use the rest of the software
+        if not profilefolder_missing:
+            if not os.path.exists("config.ini"):
+                print("No config.ini found! Prompting user for initial profile selection...")
+                self.config.createConfig(defaultprofile="None", dontaskagain=False)         # generate placeholder config
                 self.prompt_profileselect_default()
+            else:
+                print("config.ini found, checking if user asked to be prompted again...")
+                self.get_configdata()
+                print("config dontaskagain:", self.config_setting_dontaskagain)
+                if not self.config_setting_dontaskagain:
+                    print("user did want to be asked again...")
+                    self.prompt_profileselect_default()
 
         dpg.set_primary_window(window=self.main_window, value=True)
 
@@ -118,7 +132,7 @@ class PyMapper:
     def prompt_profileselect_default(self):
         self.get_configdata()
         print(self.config_profiles_names_list)
-        ProfileSelect(self.config_profiles_names_list, callback=self.get_configdata)
+        ProfileSelect(profiles_list=self.config_profiles_names_list, callback=self.get_configdata, profiles_root=self.profiles_root)
 
     def add_profile_name_to_profilenameslist(self, sctn):
         if "config_profile_name" in sctn:
@@ -128,7 +142,7 @@ class PyMapper:
 
     def get_configdata(self):
         print("reading config data...")
-        config = config_management.Config()
+        config = config_management.Config(profiles_root=self.profiles_root)
         config_data = config.readConfig()
         # print(config_data)
         # generate list of profiles:
@@ -159,8 +173,8 @@ class PyMapper:
             if m.is_primary:
                 return m.width, m.height
 
-    def on_error_popup(self, error_msg):
-        with dpg.window(label=f"Startup Profile Selection",
+    def on_error_popup(self, error_title, error_msg, showbutton=False, callback=None):
+        with dpg.window(label=f"{error_title}",
                         tag="error_popup",
                         autosize=True,
                         width=400,
@@ -170,6 +184,7 @@ class PyMapper:
                         popup=True,
                         no_close=True):
             dpg.add_text(error_msg, wrap=400)
+            dpg.add_button(label="Okay", show=showbutton, callback=callback)
 
         dpg.configure_item("error_popup", pos=[
             int(dpg.get_viewport_max_width() // 2) - (dpg.get_item_width("error_popup") // 2),

@@ -3,9 +3,9 @@ from config_management import Config
 from gui_elements import *
 
 class ProfileSelect:
-    def __init__(self, profiles_list, callback):
+    def __init__(self, profiles_list, callback, profiles_root):
         self.on_startup_profile_prompt(profiles_list, callback)
-        self.config = Config()
+        self.config = Config(profiles_root=profiles_root)
 
 
     def on_startup_profile_prompt(self, profiles_list, callback):

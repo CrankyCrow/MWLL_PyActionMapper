@@ -5,10 +5,7 @@ import configparser
 import os
 
 class Config:
-    def __init__(self):
-        # get the root path to all profiles:
-        homedir = os.path.expanduser("~/")
-        profiles_root = os.path.join(homedir, "Documents/My Games/Crysis Wars/Profiles")
+    def __init__(self, profiles_root):
         # print(profiles_root)
         profiles_paths_list = [f.path for f in os.scandir(profiles_root) if f.is_dir()]
         # print(profiles_paths_list)
