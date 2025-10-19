@@ -32,7 +32,7 @@ class PyMapper:
         self.PRIMARY_MONITOR_RES_W = monitor_res[0]
         self.PRIMARY_MONITOR_RES_H = monitor_res[1]
 
-        self.VERSION = "0.0.4"
+        self.VERSION = "0.0.4a"
 
         # establish vars for config management
         ## get the root path to all profiles:
@@ -82,13 +82,14 @@ class PyMapper:
 
         #check that the [user home]/Profiles folder
         if profilefolder_missing or (len(os.listdir(self.profiles_root)) == 0):
-            error_msg = "No profiles found in My Documents\\My Games\\Crysis Wars\\Profiles!\n\nYou must create a new profile in Crysis Wars before using this application.\n"
+            error_msg = "No profiles found in Documents\\My Games\\Crysis Wars\\Profiles!\n\nYou must create a new profile in Crysis Wars before using this application.\n"
             self.on_error_popup(error_title="No profiles found, exiting!", error_msg=error_msg, showbutton=True, callback=self.exit_window)
 
-        # assuming profiles' root folder exists, detect whether a config.ini file exists in the root dir
+        # assuming profiles' root folder exists, detect whether a config.ini file exists in the Profiles dir
         # if config file doesn't exist, prompt the user to generate one via the profile selection screen, before they can use the rest of the software
         if not profilefolder_missing:
-            if not os.path.exists("config.ini"):
+            configPath = os.path.join(self.profiles_root, "config.ini")
+            if not os.path.exists(configPath):
                 print("No config.ini found! Prompting user for initial profile selection...")
                 self.config.createConfig(defaultprofile="None", dontaskagain=False)         # generate placeholder config
                 self.prompt_profileselect_default()
@@ -131,7 +132,7 @@ class PyMapper:
 
     def prompt_profileselect_default(self):
         self.get_configdata()
-        print(self.config_profiles_names_list)
+        print("profiles list from config.ini:", self.config_profiles_names_list)
         ProfileSelect(profiles_list=self.config_profiles_names_list, callback=self.get_configdata, profiles_root=self.profiles_root)
 
     def add_profile_name_to_profilenameslist(self, sctn):

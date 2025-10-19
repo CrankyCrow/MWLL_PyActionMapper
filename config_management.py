@@ -6,7 +6,10 @@ import os
 
 class Config:
     def __init__(self, profiles_root):
-        # print(profiles_root)
+        # set given profiles_root as root dir for config.ini
+        # configPath should point to [path to]/Documents/My Games/Crysis Wars/Profiles, given correct input when calling constructor
+        self.configPath = os.path.join(profiles_root, "config.ini")
+        print(profiles_root)
         profiles_paths_list = [f.path for f in os.scandir(profiles_root) if f.is_dir()]
         # print(profiles_paths_list)
         # make a list of all profiles in the root profiles directory:
@@ -31,14 +34,13 @@ class Config:
 
         print(config)
 
-        with open("config.ini", "w") as configfile:
+        with open(self.configPath, "w") as configfile:
             config.write(configfile)
 
-    @staticmethod
-    def readConfig():
+    def readConfig(self):
         config = configparser.ConfigParser()
 
-        config.read("config.ini")
+        config.read(self.configPath)
 
         config_values = []
 
@@ -56,8 +58,6 @@ class Config:
         # print("config values:", config_values)
         return config_values
 
-# conf = Config()
-# conf.createConfig()
-# print(conf.readConfig())
+
 
 
