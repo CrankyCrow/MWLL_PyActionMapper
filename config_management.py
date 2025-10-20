@@ -8,7 +8,7 @@ class Config:
     def __init__(self, profiles_root):
         # set given profiles_root as root dir for config.ini
         # configPath should point to [path to]/Documents/My Games/Crysis Wars/Profiles, given correct input when calling constructor
-        self.configPath = os.path.join(profiles_root, "config.ini")
+        self.configPath = os.path.join(profiles_root, "actionmapper_config.ini")
         print(profiles_root)
         profiles_paths_list = [f.path for f in os.scandir(profiles_root) if f.is_dir()]
         # print(profiles_paths_list)

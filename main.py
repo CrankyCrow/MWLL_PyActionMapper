@@ -88,13 +88,13 @@ class PyMapper:
         # assuming profiles' root folder exists, detect whether a config.ini file exists in the Profiles dir
         # if config file doesn't exist, prompt the user to generate one via the profile selection screen, before they can use the rest of the software
         if not profilefolder_missing:
-            configPath = os.path.join(self.profiles_root, "config.ini")
+            configPath = os.path.join(self.profiles_root, "actionmapper_config.ini")
             if not os.path.exists(configPath):
-                print("No config.ini found! Prompting user for initial profile selection...")
+                print("No actionmapper_config.ini found! Prompting user for initial profile selection...")
                 self.config.createConfig(defaultprofile="None", dontaskagain=False)         # generate placeholder config
                 self.prompt_profileselect_default()
             else:
-                print("config.ini found, checking if user asked to be prompted again...")
+                print("actionmapper_config.ini found, checking if user asked to be prompted again...")
                 self.get_configdata()
                 print("config dontaskagain:", self.config_setting_dontaskagain)
                 if not self.config_setting_dontaskagain:
