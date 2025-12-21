@@ -6,8 +6,9 @@ Made with the [dearpygui](https://github.com/hoffstadt/DearPyGui) framework, [sc
 ### TODO:
 * **TASK_1**: Implement ``Reset to default`` - resetting to default actionmaps xml
 	- **TASK_1_BUG**: Fix issue of tempfile not being reset when resetting edits
-* **TASK_2**: Implement ``Help``, a  guide to using pyAM
+* **TASK_2**: Implement ``Help``, a guide to using pyAM
 * **TASK_3**: ``Save As`` should immediately open the newly-saved file on successful save, instead of keeping open the temp file.
+* **TASK_4**: Implement ``Invert Control`` option for ASF pitch/yaw/roll, VTOL pitch/yaw/roll, and tank autoboost(?)
 
 ### QoL IDEAS:
 * **IDEA_1**: Have the action name in the bind edit popup window be displayed in a distinguishably different color and/or bold
