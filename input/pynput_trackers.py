@@ -192,16 +192,20 @@ class MouseTracker:
             self.buttonPressed = "mwheel_down"
 
     def get_larger_moveAxis(self):
-        max_moveAxis_x = max(self.moveCoordsList_x)
-        min_moveAxis_x = min(self.moveCoordsList_x)
-        max_moveAxis_y = max(self.moveCoordsList_y)
-        min_moveAxis_y = min(self.moveCoordsList_y)
-        if (max_moveAxis_x - min_moveAxis_x) > (max_moveAxis_y - min_moveAxis_y):
-            print("mouse movement on x-axis detected")
-            return "maxis_x"
-        elif (max_moveAxis_y - min_moveAxis_y) > (max_moveAxis_x - min_moveAxis_x):
-            print("mouse movement on y-axis detected")
-            return "maxis_y"
+        try:
+            max_moveAxis_x = max(self.moveCoordsList_x)
+            min_moveAxis_x = min(self.moveCoordsList_x)
+            max_moveAxis_y = max(self.moveCoordsList_y)
+            min_moveAxis_y = min(self.moveCoordsList_y)
+            if (max_moveAxis_x - min_moveAxis_x) > (max_moveAxis_y - min_moveAxis_y):
+                print("mouse movement on x-axis detected")
+                return "maxis_x"
+            elif (max_moveAxis_y - min_moveAxis_y) > (max_moveAxis_x - min_moveAxis_x):
+                print("mouse movement on y-axis detected")
+                return "maxis_y"
+
+        except ValueError:
+            print("no input detected")
 
     def start_tracking(self, waittime):
         mListener = mouse.Listener(on_move=self.on_move, on_scroll=self.on_scroll, on_click=self.on_click)
