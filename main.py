@@ -72,6 +72,9 @@ class PyMapper:
         # immediately create a temporary file that will serve as the actionmap to write to and read from when changes are made:
         self.write_xml_file(self.actionmap_master_new_list, istemp=True)
 
+        # control exceptions that can be permitted to be inverted (this will be written to actionmapper.cfg as cvars)
+        self.EXCEPTIONS_INVERTCONTROLS = ["maxis_x", "maxis_y"]
+
         # center the viewport in the user's primary monitor
         dpg.configure_viewport(0, x_pos=(self.PRIMARY_MONITOR_RES_W // 2) - (dpg.get_viewport_max_width() // 2),
                                y_pos=(self.PRIMARY_MONITOR_RES_H // 2) - (dpg.get_viewport_height() // 2))
@@ -334,6 +337,10 @@ class PyMapper:
         selectedInput = self.get_user_device_input_pynput(combo_value)
         if selectedInput != "":
             dpg.configure_item("rebindwindow_promptfield", default_value=selectedInput)
+            if selectedInput in self.EXCEPTIONS_INVERTCONTROLS:
+                dpg.configure_item("rebindwindow_invert_checkbox", show=True)
+            else:
+                dpg.configure_item("rebindwindow_invert_checkbox", show=False)
         else:
             print("need input to proceed!")
 
@@ -374,6 +381,9 @@ class PyMapper:
             with dpg.group(horizontal=True):
                 dpg.add_button(label="confirm", callback=lambda: [self.on_keybind_prompt_confirm(category=category, action=action, bindnum=bind_slot, newbind=dpg.get_value("rebindwindow_promptfield")), dpg.delete_item("rebind_popup")])
                 dpg.add_button(label="cancel", callback=lambda: dpg.delete_item("rebind_popup"))
+                dpg.add_checkbox(label="invert", tag="rebindwindow_invert_checkbox", show=False)
+                if bind in self.EXCEPTIONS_INVERTCONTROLS:
+                    dpg.configure_item("rebindwindow_invert_checkbox", show=True)
                 dpg.add_spacer(width=65)
                 dpg.add_button(label="clear bind", callback=lambda: dpg.configure_item("rebindwindow_promptfield", default_value="none"))
 
