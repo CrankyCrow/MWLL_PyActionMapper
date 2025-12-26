@@ -363,7 +363,7 @@ class PyMapper:
             rebindwindow_promptfield = dpg.add_input_text(default_value=f"{bind} (current)", auto_select_all=True, readonly=True, tag="rebindwindow_promptfield")
             # put section on right half of window that gives the user options to choose input method (from dropdown menu; kbd/m/jstk-cntrlr)
             # selecting one of these options will then open a screen prompting the user to press a key or move their mouse/press mouse button
-            rebindwindow_inputdevicetype_list = ["mouse axis", "mouse button", "keyboard", "joystick / controller"]
+            rebindwindow_inputdevicetype_list = ["mouse axis", "mouse button", "keyboard"] #, "joystick / controller"]
             rebindwindow_inputdevicetype = dpg.add_combo(items=rebindwindow_inputdevicetype_list,
                                                          default_value="Select an input device",
                                                          callback=self.combo_setvalue)
@@ -432,9 +432,9 @@ class PyMapper:
                 dpg.bind_item_theme(keyboardkeyInput_button, invisible_button_theme)
                 user_input = keyboardkeyInput
 
-            elif devicetype == "joystick / controller":
-                inputdevice_keyboard_instr_button = dpg.add_button(label="[WIP] Press a joystick button [WIP]", width=window_rect_size[0], pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size("Press a keyboard button")[0], dpg.get_viewport_height() // 2 - 25])
-                dpg.bind_item_theme(inputdevice_keyboard_instr_button, invisible_button_theme)
+            # elif devicetype == "joystick / controller":
+            #     inputdevice_keyboard_instr_button = dpg.add_button(label="[WIP] Press a joystick button [WIP]", width=window_rect_size[0], pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size("Press a keyboard button")[0], dpg.get_viewport_height() // 2 - 25])
+            #     dpg.bind_item_theme(inputdevice_keyboard_instr_button, invisible_button_theme)
 
             time.sleep(waitTime)
             dpg.configure_item("rebind_popup", show=True)
