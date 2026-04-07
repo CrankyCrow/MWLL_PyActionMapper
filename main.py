@@ -7,6 +7,7 @@ from screeninfo import get_monitors
 from ast import literal_eval as EvalStr
 import xmltodict
 import os
+import platform
 import ctypes
 from ctypes import wintypes
 
@@ -35,13 +36,16 @@ class PyMapper:
         self.PRIMARY_MONITOR_RES_W = monitor_res[0]
         self.PRIMARY_MONITOR_RES_H = monitor_res[1]
 
-        self.VERSION = "0.0.4b"
+        self.VERSION = "0.0.4c"
 
         # establish vars for config management
         ## get the root path to all profiles:
-        # homedir = os.path.expanduser("~/")
-        # print(os.path.expanduser("~/"))
-        homedir = str(self.SpecialFolder(5))
+        homedir = ""
+        systemType = platform.system()
+        if systemType == "Windows":
+            homedir = str(self.SpecialFolder(5))
+        elif systemType == "Linux":
+            homedir = os.path.expanduser("~/")
         cwdir = "\\My Games\\Crysis Wars"
         print("homedir:", homedir)
         self.profiles_root = homedir + cwdir + "\\Profiles"
