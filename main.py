@@ -63,7 +63,7 @@ class PyMapper:
 
         # get the root path to MWLL client dir (to access actionmapper.cfg)
         # self.client_root = os.path.join(homedir, "/My Games/Crysis Wars/MWLL/Client")
-        self.client_root = homedir + cwdir + "\\My Games\\Crysis Wars\\MWLL\\Client"
+        self.client_root = homedir + cwdir + "\\MWLL\\Client"
         self.client_actionmapperconfig = "actionmapper.cfg"
 
         self.xml_dir = Path(f"{os.getcwd()}/xml")
