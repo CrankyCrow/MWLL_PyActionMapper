@@ -4,8 +4,10 @@
 <ActionMaps>
 <visible>
   <!-- this needs to be in order -->
-  <map>default</map>
+  <map>NULL</map>
   <map>player</map>
+  <map>multiplayer</map>
+  <map>default</map>
   <map>vehicle</map>
   <map>mech</map>
   <map>tank</map>
@@ -91,7 +93,7 @@
    <key name="lctrl"/>
    <key name="null"/>
   </action>
-  
+
   <action name="v_rotateyaw">
    <key name="maxis_x"/>
    <key name="null"/>
@@ -108,7 +110,7 @@
    <key name="null"/>
    <key name="null"/>
   </action>
-  
+
   <action name="v_rotateroll">
    <key name="null"/>
    <key name="null"/>
@@ -125,7 +127,7 @@
    <key name="d"/>
    <key name="null"/>
   </action>
-  
+
   <action name="SetThrottleval">
    <key name="null"/>
    <key name="null"/>
@@ -142,7 +144,7 @@
    <key name="s"/>
    <key name="null"/>
   </action>
-  
+
   <action name="ToggleGears" onPress="1">
    <key name="g"/>
    <key name="null"/>
@@ -234,7 +236,7 @@
    <key name="e"/>
    <key name="xi_triggerl_btn"/>
   </action>
-  <action name="track_enemy_air" onPress="1" onRelease="1">	
+  <action name="track_enemy_air" onPress="1" onRelease="1">
     <key name="g"/>
     <key name="null"/>
   </action>
@@ -480,7 +482,6 @@
    <key name="space"/>
    <key name="xi_a"/>
   </action>
-  <!--
   <action name="toggleIntCvar cl_free_reticle_independent" onPress="1" consoleCmd="1">
    <key name="f1"/>
    <key name="null"/>
@@ -493,7 +494,6 @@
    <key name="f2"/>
    <key name="null"/>
   </action>
-  -->
  </actionmap>
  <actionmap name="multiplayer" version="20">
   <action name="radio_group_0" onPress="1">
