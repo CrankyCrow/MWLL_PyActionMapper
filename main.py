@@ -13,7 +13,6 @@ from ctypes import wintypes
 
 from input.pynput_trackers import MouseTracker, KeyboardTracker
 import config_management
-from structure.tabs_actiondict_master import TabsActionDictMaster as actiondict_master
 
 # the following three lines MUST be placed BEFORE the import statement that follows them!
 dpg.create_context()
@@ -88,8 +87,6 @@ class PyMapper:
         # create list object to hold what will be the modified actionmaps:
         self.actionmap_master_new_list = EvalStr(
             self.actionmap_active.__str__().removeprefix("actionmaps(").removesuffix(")"))
-        # create link to dictionary file that maps tab contents' layouts:
-        self.actiondict_master = actiondict_master
         # immediately create a temporary file that will serve as the actionmap to write to and read from when changes are made:
         self.write_xml_file(self.actionmap_master_new_list, istemp=True)
 
