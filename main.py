@@ -356,6 +356,105 @@ class PyMapper:
 
         return controlcategory
 
+    def tab_action_format_checker(self, actionval):
+        """
+        Checks that the given line/action in the actiondict_master follows the format [category, description, [list of binds]]
+        :param actionval: the value of the checked action in the actiondict_master
+        :return: True or False - whether the given action's value follows the aforementioned format
+        """
+        check_pass = False
+        print("actionval:", actionval)
+        if type(actionval[0]) == str and type(actionval[1]) == str and type(actionval[2]) == list and len(actionval[2]) == 2:
+            check_pass = True
+
+        return check_pass
+
+    def update_tabs(self, tabname):
+        selectedTab = self.actiondict_master.tabs[tabname]
+        # print("selectedTab:", selectedTab)
+        for section in selectedTab:
+            # print(section)
+            for action in selectedTab[section]:
+                # print(action, f"\n  {selectedTab[section][action]}")
+                action_category = selectedTab[section][action][0]
+                controlcategory_list = self.load_actionmap_as_list(action_category)
+                # print(self.actionmap_active.get_action(action_category, action))
+                # print("controlcategory_list:", controlcategory_list)
+                for actionmap_action in controlcategory_list:
+                    if str(actionmap_action["@name"]) == action:
+                        if len(selectedTab[section][action]) == 2:
+                            print("actionmap_action:", actionmap_action)
+                            # print(selectedTab[section][action])
+                            # for exceedingly rare cases where the current action has no bind slots at all:
+                            if "key" not in actionmap_action:
+                                print(f"encountered action with no binds: {actionmap_action}")
+                                # force add two empty bind slots:
+                                selectedTab[section][action].append([{'@name': "null"}, {'@name': "null"}])
+                                actionmap_action["key"] = selectedTab[section][action][2]
+                                # print("modified actionmap_action:", actionmap_action)
+                                # print("modified controlcategory_list:", controlcategory_list)
+                                print("added two empty bind slots")
+                            # for cases where loaded actionmap xml has only one bind slot for the current action:
+                            elif len(actionmap_action["key"]) == 1:
+                                print(f"encountered action with missing bind slot: {actionmap_action}")
+                                # force add empty second bind slot, as part of a new list of bind slots:
+                                selectedTab[section][action].append([actionmap_action["key"], {'@name': "null"}])
+                                print("added one empty second bind slot:", selectedTab[section][action])
+                            else:
+                                selectedTab[section][action].append(actionmap_action["key"])
+
+                        elif self.tab_action_format_checker(selectedTab[section][action]):
+                            selectedTab[section][action][2] = actionmap_action["key"]
+                    else:
+                        pass
+        print("selectedTab (after tab update):", selectedTab)
+        return selectedTab
+
+    def populate_tab(self, parent, tabname):
+
+        selectedTab = self.update_tabs(tabname)
+
+        controlcategory = dpg.add_child_window(parent=parent)
+        with dpg.table(parent=controlcategory, header_row=True, resizable=True):
+            dpg.add_table_column(label="Action")
+            dpg.add_table_column(label="Bind 1")
+            dpg.add_table_column(label="Bind 2")
+            for actiontype in selectedTab:
+                with dpg.table_row(tag=f"table_{tabname}_row_{actiontype}"):
+                    dpg.add_text(f"{actiontype}", tag=f"table_{tabname}_row_{actiontype}_text")
+                for action in selectedTab[actiontype]:
+                    with dpg.table_row(tag=f"table_{tabname}_row_{action}"):
+                        currentAction = selectedTab[actiontype][action]
+                        currentAction_binds = currentAction[2]
+                        # print("currentAction_binds (generating row):", currentAction_binds)
+                        dpg.add_text(f"   {currentAction[1]}")
+                        try:
+                            action_bind1 = currentAction_binds[0]["@name"]
+                            action_bind2 = currentAction_binds[1]["@name"]
+                            if action_bind1 == "null":
+                                action_bind1 = "none"
+                            if action_bind2 == "null":
+                                action_bind2 = "none"
+                        except KeyError:
+                            # for cases where the actionmaps file only has one bind listed for the action currently being read
+                            print(f"encountered action {action} with missing bind slot!")
+                            if type(currentAction_binds) == dict:
+                                print("action binds are a dictionary! expected list of 2 dictionaries!")
+                                action_bind1 = currentAction_binds["@name"]
+                                # print(action_bind1)
+                                if action_bind1 == "null":
+                                    action_bind1 = "none"
+                                action_bind2 = "none"
+                        bind1_text = dpg.add_selectable(label=f"{action_bind1}",
+                                                        tag=f"{tabname}#{currentAction[0]}#{action}#bind1#{action_bind1}",
+                                                        callback=self.pass_selected_actionbind)
+                        bind2_text = dpg.add_selectable(label=f"{action_bind2}",
+                                                        tag=f"{tabname}#{currentAction[0]}#{action}#bind2#{action_bind2}",
+                                                        callback=self.pass_selected_actionbind)
+                        dpg.bind_item_handler_registry(bind1_text, "widget_handler")
+                        dpg.bind_item_handler_registry(bind2_text, "widget_handler")
+
+
     def pass_selected_actionbind(self, bindtag):
         dpg.configure_item(item=bindtag, default_value=False)
         print(bindtag)
