@@ -614,6 +614,45 @@ class PyMapper:
 
         return user_input
 
+    def update_master_new_list_bind(self, category, action, bindnum, newbind):
+        """
+
+        :param category: the name of the section where the action-to-be-modified is located
+        :param action: the name of the action being modified
+        :param bindnum: the index number (0 or 1) of the bind slot to modify
+        :param newbind: the name of the key to set in the bind slot
+        :return:
+        """
+        print("pre-update actionmap_master_new_list (given category):", self.actionmap_master_new_list[0][1]['actionmap'][9])
+        newbind = str(newbind).removesuffix(" (current)")
+        # print(self.actionmap_active.get_section(category))
+        category_chosen = self.actionmap_active.get_section(category)[0]  # remember that get_section returns a tuple, with the important value being index 0
+        print("category chosen:", category_chosen)
+        # get the index of the actionmaps section being updated:
+        # print("self.actionmap_master_new_list:", self.actionmap_master_new_list)
+        category_chosen_index = self.actionmap_master_new_list[0][1]['actionmap'].index(category_chosen)
+        print("player section index:", category_chosen_index)
+        action_chosen = self.actionmap_active.get_action(category, action)[0]  # ditto for get_action, re: returned tuple having important stuff in index 0
+        print("chosen action:", action_chosen)
+        ## get the index of the action being modified:
+        action_chosen_index = category_chosen['action'].index(action_chosen)
+        print("action index:", action_chosen_index)
+        print("newbind:", newbind)
+        if newbind == "none":
+            newbind = "null"
+        print(action_chosen['key'])
+        if type(action_chosen['key']) is dict:
+            action_chosen['key'] = [{'@name': 'null'}, {'@name': 'null'}]
+        ## update chosen keybind of said action:
+        action_chosen['key'][bindnum]['@name'] = newbind
+        print("updated action chosen:", action_chosen)
+        ## add this action back into its corresponding section, using the index acquired earlier:
+        category_chosen['action'][action_chosen_index] = action_chosen
+        print("updated category chosen:", category_chosen)
+        ## update the master actionmap data with the updated section:
+        self.actionmap_master_new_list[0][1]['actionmap'][category_chosen_index] = category_chosen
+        # print("updated master actionmaps:", self.actionmap_master_new_list)
+
     def on_keybind_prompt_confirm(self, category, action, bindnum, newbind):
         """
         Updates a given action's bind slot with the user's chosen key.
@@ -625,30 +664,8 @@ class PyMapper:
         :param newbind: the name of the key to set in the bind slot
         :return:
         """
-        newbind = str(newbind).removesuffix(" (current)")
-        category_chosen = self.actionmap_active.get_section(category)[
-            0]  # remember that get_section returns a tuple, with the important value being index 0
-        print("category chosen:", category_chosen)
-        # get the index of the actionmaps section being updated:
-        category_chosen_index = self.actionmap_master_new_list[0][1]['actionmap'].index(category_chosen)
-        print("player section index:", category_chosen_index)
-        action_chosen = self.actionmap_active.get_action(category, action)[
-            0]  # ditto for get_action, re: returned tuple having important stuff in index 0
-        print("chosen action:", action_chosen)
-        ## get the index of the action being modified:
-        action_chosen_index = category_chosen['action'].index(action_chosen)
-        print("action index:", action_chosen_index)
-        if newbind == "none":
-            newbind = "null"
-        ## update chosen keybind of said action:
-        action_chosen['key'][bindnum]['@name'] = newbind
-        print("updated action chosen:", action_chosen)
-        ## add this action back into its corresponding section, using the index acquired earlier:
-        category_chosen['action'][action_chosen_index] = action_chosen
-        print("updated category chosen:", category_chosen)
-        ## update the master actionmap data with the updated section:
-        self.actionmap_master_new_list[0][1]['actionmap'][category_chosen_index] = category_chosen
-        print("updated master actionmaps:", self.actionmap_master_new_list)
+        print("running on_keybind_prompt_confirm with these inputs:", category, action, bindnum, newbind)
+        self.update_master_new_list_bind(category=category, action=action, bindnum=bindnum, newbind=newbind)
 
         # refresh GUI:
         ## write to temp file:
