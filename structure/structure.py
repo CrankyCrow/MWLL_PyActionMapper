@@ -150,7 +150,7 @@ class actionmaps(collections.OrderedDict):
 
     def get_action(self, section, lookup, missing_ok=False):
         # check section for the name, raise ValueError if not found.
-        # sectoin can either be the section or the name of the section
+        # section can either be the section or the name of the section
         # can use missing_ok=True to avoid error
         if type(section) == str:
             section, s_idx = self.get_section(section)
@@ -247,3 +247,4 @@ class Action:
 
     def getKeys(self):
         return tuple(self.keys)
+

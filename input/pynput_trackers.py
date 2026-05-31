@@ -134,6 +134,8 @@ class KeyboardTracker:
                 self.keyPressed = "up"
             elif key is keyDir.down:
                 self.keyPressed = "down"
+            elif key is keyDir.caps_lock:
+                self.keyPressed = "capslock"
 
         print(f"Converted key name to {self.keyPressed}")
         return False
@@ -213,16 +215,4 @@ class MouseTracker:
         time.sleep(waittime)
         mListener.stop()
         mListener.join()
-
-# with keyboard.Listener(on_press=on_press) as kListener:
-#     kListener.join()
-
-### Use this set of lines to start detecting mouse input
-# mouseTracker = MouseTracker()
-# mouseTracker.start_tracking()
-# # mouseTracker.get_average_mouseAxis()
-# mouseTracker.get_larger_moveAxis()
-
-# kb = KeyboardTracker()
-# kb.start_tracking(3)
 

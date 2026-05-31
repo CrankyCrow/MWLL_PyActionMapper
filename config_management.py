@@ -1,5 +1,3 @@
-import time
-
 from structure.structure import profile as profilereader
 import configparser
 import os
