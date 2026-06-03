@@ -143,18 +143,20 @@ class PyMapper:
             configPath = os.path.join(self.profiles_root, "actionmapper_config.ini")
             if not os.path.exists(configPath):
                 print("No actionmapper_config.ini found! Prompting user for initial profile selection...")
-                self.config.createConfig(defaultprofile="None", dontaskagain=False)         # generate placeholder config
+                self.config.createConfig(defaultprofile=None, dontaskagain=False)  # generate placeholder config
                 self.prompt_profileselect_default()
             else:
-                print("actionmapper_config.ini found, checking if user asked to be prompted again...")
+                print("actionmapper_config.ini found...")
                 self.get_configdata()
-                print("config dontaskagain:", self.config_setting_dontaskagain)
+                # print(" checking that default profile name exists...")
+                print(" checking if user asked to be prompted again...")
+                print(" config dontaskagain:", self.config_setting_dontaskagain)
                 if self.config_setting_dontaskagain:
-                    print("user did NOT want to be asked again...")
-                    self.prompt_profileselect_default()         # Initialize the dialogue, so it may be opened later
+                    print(" user did NOT want to be asked again...")
+                    self.prompt_profileselect_default()  # Initialize the dialogue, so it may be opened later
                     dpg.hide_item("profile_popup")
                 else:
-                    print("user did want to be asked again...")
+                    print(" user did want to be asked again...")
                     self.prompt_profileselect_default()
 
         dpg.set_primary_window(window=self.main_window, value=True)

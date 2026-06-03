@@ -9,23 +9,31 @@ class Config:
         self.configPath = os.path.join(profiles_root, "actionmapper_config.ini")
         print(profiles_root)
         profiles_paths_list = [f.path for f in os.scandir(profiles_root) if f.is_dir()]
-        # print(profiles_paths_list)
+        print("profiles_paths_list:", profiles_paths_list)
         # make a list of all profiles in the root profiles directory:
         self.profiles_list = []
         for profile_path in profiles_paths_list:
+            profile_dir_name = os.path.split(profile_path)[1]
+            print(profile_dir_name)
             if os.path.exists(os.path.join(profile_path, "profile.xml")):
                 profile_obj = profilereader(profile_path)
-                self.profiles_list.append(profile_obj)
+                print(profile_obj.name)
+                if profile_dir_name == profile_obj.name:
+                    print("found matching profile name-profile dir pair")
+                    self.profiles_list.append(profile_obj)
+                else:
+                    pass
         # print(self.profiles_list)
 
     def get_profiles_list(self):
         return self.profiles_list
 
-    def createConfig(self, defaultprofile, dontaskagain):
+    def createConfig(self, dontaskagain, defaultprofile):
         config = configparser.ConfigParser()
+        print("self.profiles_list:", self.get_profiles_list())
         # add sections and key-value pairs:
         config["config"] = {"setting_dontaskagain": str(dontaskagain),
-                            "setting_defaultprofile": defaultprofile}
+                            "setting_defaultprofile": self.profiles_list[0].name if defaultprofile is None else defaultprofile}
 
         for profile in self.profiles_list:
             config[f"{profile.name}"] = {"profile_path": profile.profile_dir, "profile_backups_dir": profile.backup_dir}
