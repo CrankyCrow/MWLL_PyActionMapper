@@ -28,7 +28,7 @@ class ProfileSelect:
             dpg.add_text("Select a profile:")
             profile_list = profiles_list
             dpg.add_listbox(items=profile_list, tag="listbox_profiles", source="tracker_str_defaultprofile")
-            dpg.add_checkbox(label="Don\'t ask again", tag="checkbox_dontaskagain", source="tracker_bool_dontaskagain", default_value=self.dontAskAgain)
+            dpg.add_checkbox(label="Don\'t ask on startup", tag="checkbox_dontaskagain", source="tracker_bool_dontaskagain", default_value=self.dontAskAgain)
 
             dpg.add_button(label="Confirm", tag="profile_popup_confirm",
                            callback=lambda s, d: [

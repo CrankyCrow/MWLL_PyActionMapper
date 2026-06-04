@@ -93,7 +93,7 @@ class PyMapper:
         # create link to dictionary file that maps tab contents' layouts:
         self.actiondict_master = actiondict_master
         # immediately create a temporary file that will serve as the actionmap to write to and read from when changes are made:
-        self.write_xml_file(self.actionmap_master_new_list, istemp=True)
+        self.write_actionmaps_to_xml(self.actionmap_master_new_list, istemp=True)
 
         # establish list of special case actions that are linked to another action:
         ## special case actions should not be displayed for editing, as modifying them may cause undesirable behavior in-game
@@ -195,7 +195,7 @@ class PyMapper:
         self.actionmap_master_new_list = EvalStr(
             self.actionmap_active.__str__().removeprefix("actionmaps(").removesuffix(")"))
         # immediately create a temporary file that will serve as the actionmap to write to and read from when changes are made:
-        self.write_xml_file(self.actionmap_master_new_list, istemp=True)
+        self.write_actionmaps_to_xml(self.actionmap_master_new_list, istemp=True)
         # refresh display
         dpg.delete_item("primary")
         self.setup_display()
@@ -694,7 +694,7 @@ class PyMapper:
 
         # refresh GUI:
         ## write to temp file:
-        self.write_xml_file(self.actionmap_master_new_list, istemp=True)
+        self.write_actionmaps_to_xml(self.actionmap_master_new_list, istemp=True)
         ## reload from temp file (make it the active actionmaps):
         # self.actionmap_active.load(self.TEMPFILE_PATH, self.dtd_actionmap)
         # print(self.actionmap_active.get_action(category, action))
@@ -706,9 +706,9 @@ class PyMapper:
         self.setup_display(default_tab=tab)
         dpg.set_primary_window(window=self.main_window, value=True)
 
-    def write_xml_file(self, actionmaplist, istemp=False, outputpath=None, writedata=None, onsavegood=None):
+    def write_actionmaps_to_xml(self, actionmaplist, istemp=False, outputpath=None, writedata=None, onsavegood=None):
         """
-        Write to an xml file using xmltodict.unparse
+        Write actionmaps to an xml file using xmltodict.unparse
         """
         # note: the source data MUST be a dictionary
         # thus, prepare source to be turned into a dictionary:
@@ -728,6 +728,7 @@ class PyMapper:
                     print("save successful")
                     time.sleep(0.1)
                     onsavegood()
+                    self.load_actionmaps(outputpath)
 
     def on_save_good(self):
         """
@@ -779,10 +780,10 @@ class PyMapper:
                              height=300,
                              modal=True,
                              default_path=(str(self.profile_player_actionmap_path).removesuffix("actionmaps.xml")),
-                             callback=lambda s, a: [self.write_xml_file(self.actionmap_master_new_list,
-                                                                        outputpath=a["file_path_name"],
-                                                                        writedata=a,
-                                                                        onsavegood=self.on_save_good),
+                             callback=lambda s, a: [self.write_actionmaps_to_xml(self.actionmap_master_new_list,
+                                                                                 outputpath=a["file_path_name"],
+                                                                                 writedata=a,
+                                                                                 onsavegood=self.on_save_good),
                                                     print(s, a)]):
             dpg.add_file_extension(".xml", color=(255, 255, 255, 255))
 
@@ -852,7 +853,7 @@ class PyMapper:
         print("Original AM givemecbills:", self.actionmap_saved.get_action("player", "givemecbills"))
         self.actionmap_master_new_list = self.actionmap_master_OG_list
         print("Original AM (just after reset):", self.actionmap_master_new_list)
-        self.write_xml_file(self.actionmap_master_new_list, istemp=True)
+        self.write_actionmaps_to_xml(self.actionmap_master_new_list, istemp=True)
         # dpg.delete_item("primary")
         self.setup_display()
         dpg.set_primary_window(window=self.main_window, value=True)
