@@ -36,7 +36,7 @@ class PyMapper:
         self.PRIMARY_MONITOR_RES_W = monitor_res[0]
         self.PRIMARY_MONITOR_RES_H = monitor_res[1]
 
-        self.VERSION = "0.0.5"
+        self.VERSION = "0.0.5a"
 
         # establish vars for config management
         ## get the root path to all profiles:
@@ -143,17 +143,16 @@ class PyMapper:
             configPath = os.path.join(self.profiles_root, "actionmapper_config.ini")
             if not os.path.exists(configPath):
                 print("No actionmapper_config.ini found! Prompting user for initial profile selection...")
-                self.config.createConfig(defaultprofile=None, dontaskagain=False)  # generate placeholder config
+                self.config.createConfig(defaultprofile=None, dontaskagain=False)         # generate placeholder config
                 self.prompt_profileselect_default()
             else:
                 print("actionmapper_config.ini found...")
                 self.get_configdata()
-                # print(" checking that default profile name exists...")
                 print(" checking if user asked to be prompted again...")
                 print(" config dontaskagain:", self.config_setting_dontaskagain)
                 if self.config_setting_dontaskagain:
                     print(" user did NOT want to be asked again...")
-                    self.prompt_profileselect_default()  # Initialize the dialogue, so it may be opened later
+                    self.prompt_profileselect_default()         # Initialize the dialogue, so it may be opened later
                     dpg.hide_item("profile_popup")
                 else:
                     print(" user did want to be asked again...")
@@ -232,7 +231,6 @@ class PyMapper:
                 self.config_setting_dontaskagain = section["config_setting_dontaskagain"]
                 print("config dontaskagain:", self.config_setting_dontaskagain)
             if "config_setting_defaultprofile" in section:
-                # self.profile_player_name = section["config_setting_defaultprofile"]
                 dpg.set_value("tracker_str_selectedprofile", section["config_setting_defaultprofile"])
                 print("default profile name:", section["config_setting_defaultprofile"])
             if ("config_profile_name" in section) and (section["config_profile_name"] == dpg.get_value("tracker_str_selectedprofile")) and ("config_profile_path" in section):

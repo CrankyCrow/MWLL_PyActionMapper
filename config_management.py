@@ -48,6 +48,11 @@ class Config:
 
         config.read(self.configPath)
 
+        # check that default profile in config is one that actually exists:
+        profile_names = []
+        for p in self.profiles_list:
+            profile_names.append(p.name)
+
         config_values = []
 
         for s in config.sections():
@@ -57,13 +62,12 @@ class Config:
                                 "config_profile_backups_dir": config.get(s, "profile_backups_dir")}
                 config_values.append(profile_dict)
             else:
-                config_settings_dict = {"config_setting_dontaskagain": config.getboolean(s, "setting_dontaskagain"),
-                                        "config_setting_defaultprofile": config.get(s, "setting_defaultprofile")}
+                defaultprofile = config.get(s, "setting_defaultprofile")
+                dontaskagain = config.getboolean(s, "setting_dontaskagain")
+                config_settings_dict = {"config_setting_dontaskagain": dontaskagain,
+                                        "config_setting_defaultprofile": defaultprofile if defaultprofile in profile_names else self.createConfig(dontaskagain=False, defaultprofile=profile_names[0])}
                 config_values.append(config_settings_dict)
 
         # print("config values:", config_values)
         return config_values
-
-
-
 
