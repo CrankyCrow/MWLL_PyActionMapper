@@ -3,6 +3,7 @@ import glob
 from pathlib import Path
 import dearpygui.dearpygui as dpg
 import lxml.etree as xmlementtree
+import xdialog
 from screeninfo import get_monitors
 from ast import literal_eval as EvalStr
 import xmltodict
@@ -724,11 +725,10 @@ class PyMapper:
         else:
             with open(outputpath, "w") as xmlfile:
                 xmlfile.write(output_data)
-                if writedata["file_path_name"] == outputpath:
-                    print("save successful")
-                    time.sleep(0.1)
-                    onsavegood()
-                    self.load_actionmaps(outputpath)
+                print("save successful")
+                time.sleep(0.1)
+                onsavegood()
+                self.load_actionmaps(outputpath)
 
     def on_save_good(self):
         """
@@ -765,27 +765,15 @@ class PyMapper:
         dpg.show_item("profile_popup")
 
     def on_open_prompt(self):
-        with dpg.file_dialog(label="Open Actionmap",
-                             width=600,
-                             height=300,
-                             modal=True,
-                             default_path=(str(self.profile_player_actionmap_path).removesuffix("actionmaps.xml")),
-                             callback=lambda s, a: [print(s, a), self.load_actionmaps(actionmap_xml=a["file_path_name"])]
-                             ):
-            dpg.add_file_extension(".xml", color=(255, 255, 255, 255))
+        openedfile = xdialog.open_file("Open Actionmap", filetypes=[("XML Files", "*.xml")])
+        if openedfile != "":
+            self.load_actionmaps(actionmap_xml=openedfile)
 
     def on_save_prompt(self):
-        with dpg.file_dialog(label="Save Actionmap",
-                             width=600,
-                             height=300,
-                             modal=True,
-                             default_path=(str(self.profile_player_actionmap_path).removesuffix("actionmaps.xml")),
-                             callback=lambda s, a: [self.write_actionmaps_to_xml(self.actionmap_master_new_list,
-                                                                                 outputpath=a["file_path_name"],
-                                                                                 writedata=a,
-                                                                                 onsavegood=self.on_save_good),
-                                                    print(s, a)]):
-            dpg.add_file_extension(".xml", color=(255, 255, 255, 255))
+        savedfile = xdialog.save_file("Save Actionmap", filetypes=[("XML Files", "*.xml")])
+        if savedfile != "":
+            self.write_actionmaps_to_xml(self.actionmap_master_new_list, outputpath=savedfile,
+                                         onsavegood=self.on_save_good)
 
     def on_about_dialogbox(self):
         """
