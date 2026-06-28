@@ -13,6 +13,8 @@ class KeyboardTracker:
             print(f"Key pressed: {key}", key.vk)
             if key == "\\":
                 self.keyPressed = "backslash"
+            elif key.char == "`":
+                self.keyPressed = "tilde"
             elif key.char == "'":
                 self.keyPressed = "apostrophe"
             elif key.char == ";":
@@ -21,6 +23,16 @@ class KeyboardTracker:
                 self.keyPressed = "period"
             elif key.char == ",":
                 self.keyPressed = "comma"
+            elif key.char == "/":
+                self.keyPressed = "slash"
+            elif key.char == "-":
+                self.keyPressed = "minus"
+            elif key.char == "=":
+                self.keyPressed = "equals"
+            elif key.char == "[":
+                self.keyPressed = "lbracket"
+            elif key.char == "]":
+                self.keyPressed = "rbracket"
             elif hasattr(key, "vk") and key.vk == 96:
                 self.keyPressed = "np_0"
             elif hasattr(key, "vk") and key.vk == 97:
@@ -58,6 +70,16 @@ class KeyboardTracker:
             if key is keyDir.enter:
                 # ignoring "np_enter", as it seems vk numbers for both "enter" and "np_enter" are the same?
                 self.keyPressed = "enter"
+            elif key is keyDir.cmd:
+                self.keyPressed = "lwin"
+            elif key is keyDir.print_screen:
+                self.keyPressed = "print"
+            elif key is keyDir.pause:
+                self.keyPressed = "pause"
+            elif key is keyDir.scroll_lock:
+                self.keyPressed = "scrolllock"
+            elif key is keyDir.num_lock:
+                self.keyPressed = "numlock"
             elif key is keyDir.space:
                 self.keyPressed = "space"
             elif key is keyDir.alt_r or key is keyDir.alt_gr:
