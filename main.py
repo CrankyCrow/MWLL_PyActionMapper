@@ -261,10 +261,11 @@ class PyMapper:
                         no_resize=False,
                         modal=True,
                         popup=True,
-                        no_close=True):
+                        no_close=True,
+                        no_open_over_existing_popup=False):
             dpg.add_text(error_msg, wrap=400)
             dpg.add_spacer(width=dpg.get_item_width("error_popup"), height=5)
-            dpg.add_button(label="Okay", tag="error_popup_button_okay", show=showbutton, callback=callback)
+            dpg.add_button(label="Okay", tag="error_popup_button_okay", show=showbutton, callback=lambda: [dpg.delete_item("error_popup"), callback])
 
         dpg.configure_item("error_popup", pos=[
             int(dpg.get_viewport_max_width() // 2) - (dpg.get_item_width("error_popup") // 2),
@@ -527,7 +528,10 @@ class PyMapper:
             # else:
             #     dpg.configure_item("rebindwindow_invert_checkbox", show=False)
         else:
-            print("need input to proceed!")
+            error_msg = "Error: Unrecognized key or no input detected"
+            print(f"{error_msg}")
+            self.on_error_popup(error_title="Input Error", error_msg=error_msg, showbutton=True)
+            dpg.delete_item("rebind_popup")
 
     def on_keybind_click(self, tab, category, action, bindnum, bind):
         """
