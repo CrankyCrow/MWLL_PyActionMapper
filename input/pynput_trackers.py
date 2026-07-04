@@ -227,9 +227,14 @@ class MouseTracker:
             elif (max_moveAxis_y - min_moveAxis_y) > (max_moveAxis_x - min_moveAxis_x):
                 print("mouse movement on y-axis detected")
                 return "maxis_y"
+            elif (max_moveAxis_y - min_moveAxis_y) == (max_moveAxis_x - min_moveAxis_x) and (
+                    max_moveAxis_x - min_moveAxis_x) == (max_moveAxis_y - min_moveAxis_y):
+                print("no input detected")
+                return "none"
 
         except ValueError:
             print("no input detected")
+            return "none"
 
     def start_tracking(self, waittime):
         mListener = mouse.Listener(on_move=self.on_move, on_scroll=self.on_scroll, on_click=self.on_click)
