@@ -521,17 +521,21 @@ class PyMapper:
         # self.user_input_device_type = combo_value
         # print(self.user_input_device_type)
         selectedInput = self.get_user_device_input_pynput(combo_value)
-        if selectedInput != "":
+        print("selectedInput: ", selectedInput)
+        if selectedInput != "" and selectedInput != "escape":
             dpg.configure_item("rebindwindow_promptfield", default_value=selectedInput)
             # if selectedInput in self.EXCEPTIONS_INVERTCONTROLS:
             #     dpg.configure_item("rebindwindow_invert_checkbox", show=True)
             # else:
             #     dpg.configure_item("rebindwindow_invert_checkbox", show=False)
+        elif selectedInput == "escape":
+            dpg.delete_item("input_prompt")
         else:
             error_msg = "Error: Unrecognized key or no input detected"
             print(f"{error_msg}")
             self.on_error_popup(error_title="Input Error", error_msg=error_msg, showbutton=True)
-            dpg.delete_item("rebind_popup")
+            dpg.delete_item("input_prompt")
+            dpg.configure_item("rebind_popup", show=True)
 
     def on_keybind_click(self, tab, category, action, bindnum, bind):
         """
@@ -552,14 +556,16 @@ class PyMapper:
                         width=250,
                         height=150,
                         no_resize=False,
-                        pos=[int(dpg.get_viewport_max_width()//2) - 125, int(dpg.get_viewport_height()//2) - 75],
+                        pos=[int(dpg.get_viewport_max_width() // 2) - 125, int(dpg.get_viewport_height() // 2) - 75],
                         modal=True,
                         popup=True) as self.rebindwindow:
             rebindwindow_prompttext = dpg.add_text(f"Rebind {action} ({bindnum}) to", wrap=250)
-            rebindwindow_promptfield = dpg.add_input_text(default_value=f"{bind} (current)", auto_select_all=True, readonly=True, tag="rebindwindow_promptfield")
+            rebindwindow_promptfield = dpg.add_input_text(default_value=f"{bind} (current)", auto_select_all=True,
+                                                          readonly=True, tag="rebindwindow_promptfield")
             # put section on right half of window that gives the user options to choose input method (from dropdown menu; kbd/m/jstk-cntrlr)
             # selecting one of these options will then open a screen prompting the user to press a key or move their mouse/press mouse button
-            rebindwindow_inputdevicetype_list = ["mouse axis", "mouse button / wheel", "keyboard"] #, "joystick / controller"]
+            rebindwindow_inputdevicetype_list = ["mouse axis", "mouse button / wheel",
+                                                 "keyboard"]  # , "joystick / controller"]
             rebindwindow_inputdevicetype = dpg.add_combo(items=rebindwindow_inputdevicetype_list,
                                                          default_value="Select an input device",
                                                          callback=self.combo_setvalue)
@@ -569,13 +575,17 @@ class PyMapper:
             bind_slot = int(bindnum.removeprefix("bind ")) - 1
             with dpg.group(horizontal=True):
                 print(category, action, bindnum, bind)
-                dpg.add_button(label="confirm", callback=lambda: [self.on_keybind_prompt_confirm(tab=tab, category=category, action=action, bindnum=bind_slot, newbind=dpg.get_value("rebindwindow_promptfield")), dpg.delete_item("rebind_popup")])
+                dpg.add_button(label="confirm", callback=lambda: [
+                    self.on_keybind_prompt_confirm(tab=tab, category=category, action=action, bindnum=bind_slot,
+                                                   newbind=dpg.get_value("rebindwindow_promptfield")),
+                    dpg.delete_item("rebind_popup")])
                 dpg.add_button(label="cancel", callback=lambda: dpg.delete_item("rebind_popup"))
 
                 # if bind in self.EXCEPTIONS_INVERTCONTROLS:
                 #     dpg.configure_item("rebindwindow_invert_checkbox", show=True)
                 dpg.add_spacer(width=65)
-                dpg.add_button(label="clear bind", callback=lambda: dpg.configure_item("rebindwindow_promptfield", default_value="none"))
+                dpg.add_button(label="clear bind",
+                               callback=lambda: dpg.configure_item("rebindwindow_promptfield", default_value="none"))
 
             # print(dpg.get_value(rebindwindow_inputdevicetype))
             dpg.bind_item_font(rebindwindow_prompttext, header_font)
@@ -584,7 +594,7 @@ class PyMapper:
         # print(devicetype)
         dpg.configure_item("rebind_popup", show=False)
         user_input = ""
-        waitTime = 1
+        waitTime = 2.5
         with dpg.window(
                 no_title_bar=True,
                 tag="input_prompt",
@@ -596,39 +606,67 @@ class PyMapper:
                 pos=[-1, 0]
         ) as inputprompt:
             window_rect_size = dpg.get_item_rect_size("rebind_popup")
+            inputdevice_instr_esc_str = "Press ESC to cancel"
+            cancel_str = "Cancel"
             if devicetype == "mouse axis":
                 # dpg.add_text("Move mouse or press a mouse button", wrap=250, label="inputdevice_mouse_instr")
                 # text_rect_size = dpg.get_item_rect_size("inputdevice_mouse_instr")
                 # dpg.configure_item("inputdevice_mouse_instr", pos=[int(window_rect_size[0] // 2) - text_rect_size[0], int(window_rect_size[1] // 2) - text_rect_size[1]])
-                inputdevice_mousemove_instr_button = dpg.add_button(label="Move your mouse horizontally or vertically", width=window_rect_size[0], pos=[dpg.get_viewport_width()//2 - dpg.get_text_size("Move your mouse horizontally or vertically")[0], dpg.get_viewport_height()//2 - 25])
+                inputdevice_mousemove_instr_str = "Move your mouse horizontally or vertically"
+                inputdevice_mousemove_instr_button = dpg.add_button(
+                    label=f"{inputdevice_mousemove_instr_str}\n\nThis prompt will close in {int(waitTime * 2)} seconds",
+                    width=window_rect_size[0],
+                    pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size(inputdevice_mousemove_instr_str)[0],
+                         dpg.get_viewport_height() // 2 - 75])
                 dpg.bind_item_theme(inputdevice_mousemove_instr_button, invisible_button_theme)
 
-                mouseTracker = MouseTracker()
+                mouseTracker = MouseTracker(track_axis=True)
                 mouseTracker.start_tracking(waitTime)
                 mousemoveInput = mouseTracker.get_larger_moveAxis()
-                mousemoveInput_button = dpg.add_button(label=f"{mousemoveInput} detected", width=int(dpg.get_text_size("------------------------------")[0]), pos=[dpg.get_viewport_width()//2 - dpg.get_text_size("------------------------------")[0], dpg.get_viewport_height()//2])
+                mousemoveInput_button = dpg.add_button(
+                    label=f"{'No input' if mousemoveInput == 'none' else mousemoveInput} detected",
+                    width=int(dpg.get_text_size("------------------------------")[0]),
+                    pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size("------------------------------")[0],
+                         dpg.get_viewport_height() // 2])
                 dpg.bind_item_theme(mousemoveInput_button, invisible_button_theme)
                 user_input = mousemoveInput
 
             elif devicetype == "mouse button / wheel":
-                inputdevice_mousemove_instr_button = dpg.add_button(label="Press a mouse button or scroll", width=window_rect_size[0], pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size("Press a mouse button or scroll")[0], dpg.get_viewport_height() // 2 - 25])
+                inputdevice_mousemove_instr_str = "Press a mouse button or scroll"
+                inputdevice_mousemove_instr_button = dpg.add_button(
+                    label=f"{inputdevice_mousemove_instr_str}\n\n{inputdevice_instr_esc_str}",
+                    width=window_rect_size[0],
+                    pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size(inputdevice_mousemove_instr_str)[0],
+                         dpg.get_viewport_height() // 2 - 75])
                 dpg.bind_item_theme(inputdevice_mousemove_instr_button, invisible_button_theme)
 
-                mouseTracker = MouseTracker()
+                mouseTracker = MouseTracker(track_buttons=True)
                 mouseTracker.start_tracking(waitTime)
                 mousebuttonInput = mouseTracker.get_buttonPressed()
-                mousebuttonInput_button = dpg.add_button(label=f"{mousebuttonInput} detected", width=int(dpg.get_text_size("------------------------------")[0]), pos=[dpg.get_viewport_width()//2 - dpg.get_text_size("------------------------------")[0], dpg.get_viewport_height()//2])
+                mousebuttonInput_button = dpg.add_button(
+                    label=f"{cancel_str if mousebuttonInput == 'none' else mousebuttonInput} detected",
+                    width=int(dpg.get_text_size("------------------------------")[0]),
+                    pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size("------------------------------")[0],
+                         dpg.get_viewport_height() // 2])
                 dpg.bind_item_theme(mousebuttonInput_button, invisible_button_theme)
                 user_input = mousebuttonInput
 
             elif devicetype == "keyboard":
-                inputdevice_keyboard_instr_button = dpg.add_button(label="Press a keyboard button", width=window_rect_size[0], pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size("Press a keyboard button")[0], dpg.get_viewport_height() // 2 - 25])
+                inputdevice_keyboard_instr_str = "Press a keyboard button"
+                inputdevice_keyboard_instr_button = dpg.add_button(
+                    label=f"{inputdevice_keyboard_instr_str}\n\n{inputdevice_instr_esc_str}",
+                    width=window_rect_size[0],
+                    pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size(inputdevice_keyboard_instr_str)[0], dpg.get_viewport_height() // 2 - 75])
                 dpg.bind_item_theme(inputdevice_keyboard_instr_button, invisible_button_theme)
 
                 keyboardTracker = KeyboardTracker()
                 keyboardTracker.start_tracking()
                 keyboardkeyInput = keyboardTracker.get_keyPressed()
-                keyboardkeyInput_button = dpg.add_button(label=f"{keyboardkeyInput} detected", width=int(dpg.get_text_size("------------------------------")[0]), pos=[dpg.get_viewport_width()//2 - dpg.get_text_size("------------------------------")[0], dpg.get_viewport_height()//2])
+                keyboardkeyInput_button = dpg.add_button(
+                    label=f"{cancel_str if keyboardkeyInput == 'escape' or keyboardkeyInput == 'none' else keyboardkeyInput} detected",
+                    width=int(dpg.get_text_size("------------------------------")[0]),
+                    pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size("------------------------------")[0],
+                         dpg.get_viewport_height() // 2])
                 dpg.bind_item_theme(keyboardkeyInput_button, invisible_button_theme)
                 user_input = keyboardkeyInput
 
