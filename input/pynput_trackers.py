@@ -2,8 +2,9 @@ from pynput import keyboard, mouse
 import time
 
 class KeyboardTracker:
-    def __init__(self):
+    def __init__(self, track_esc_only=False):
         self.keyPressed = ""
+        self.track_esc_only = track_esc_only
 
     def on_press(self, key):
         keyDir = keyboard.Key
@@ -158,8 +159,12 @@ class KeyboardTracker:
                 self.keyPressed = "down"
             elif key is keyDir.caps_lock:
                 self.keyPressed = "capslock"
+            elif key is keyDir.esc:
+                self.keyPressed = "escape"
 
         print(f"Converted key name to {self.keyPressed}")
+        if self.keyPressed == "":
+            return True
         return False
 
     def get_keyPressed(self):
@@ -171,12 +176,22 @@ class KeyboardTracker:
         kListener.join()
 
 class MouseTracker:
-    def __init__(self):
+    def __init__(self, track_axis=False, track_buttons=False):
         self.last_time = time.time()
         self.last_pos = mouse.Controller().position
         self.moveCoordsList_x = []
         self.moveCoordsList_y = []
-        self.buttonPressed = ""
+        self.buttonPressed = "none"
+        self.escNotPressed = True
+        self.track_axis = track_axis
+        self.track_buttons = track_buttons
+
+    def on_esc(self, key):
+        keyDir = keyboard.Key
+        if key == keyDir.esc:
+            print("escape key press detected")
+            self.escNotPressed = False
+            return False
 
     def on_move(self, x, y):
         print(f"Pointer moved {(x, y)}")
@@ -204,6 +219,7 @@ class MouseTracker:
             self.buttonPressed = "mouse5"
         elif button == mouse.Button.x3:
             self.buttonPressed = "mouse6"
+        return False
 
     def get_buttonPressed(self):
         return self.buttonPressed
@@ -214,6 +230,7 @@ class MouseTracker:
             self.buttonPressed = "mwheel_up"
         elif dy < 0:
             self.buttonPressed = "mwheel_down"
+        return False
 
     def get_larger_moveAxis(self):
         try:
@@ -227,8 +244,7 @@ class MouseTracker:
             elif (max_moveAxis_y - min_moveAxis_y) > (max_moveAxis_x - min_moveAxis_x):
                 print("mouse movement on y-axis detected")
                 return "maxis_y"
-            elif (max_moveAxis_y - min_moveAxis_y) == (max_moveAxis_x - min_moveAxis_x) and (
-                    max_moveAxis_x - min_moveAxis_x) == (max_moveAxis_y - min_moveAxis_y):
+            elif (max_moveAxis_y - min_moveAxis_y) == (max_moveAxis_x - min_moveAxis_x) and (max_moveAxis_x - min_moveAxis_x) == (max_moveAxis_y - min_moveAxis_y):
                 print("no input detected")
                 return "none"
 
@@ -237,9 +253,17 @@ class MouseTracker:
             return "none"
 
     def start_tracking(self, waittime):
-        mListener = mouse.Listener(on_move=self.on_move, on_scroll=self.on_scroll, on_click=self.on_click)
-        mListener.start()
-        time.sleep(waittime)
-        mListener.stop()
-        mListener.join()
+        if self.track_axis:
+            mListener = mouse.Listener(on_move=self.on_move)
+            mListener.start()
+            time.sleep(waittime)
+            mListener.stop()
+
+        elif self.track_buttons:
+            with mouse.Listener(on_scroll=self.on_scroll, on_click=self.on_click) as mListener, keyboard.Listener(on_release=self.on_esc) as kListener:
+                while self.escNotPressed and self.buttonPressed == "none":
+                    mListener.wait()
+                    kListener.wait()
+                mListener.stop()
+                kListener.stop()
 
