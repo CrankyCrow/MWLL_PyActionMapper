@@ -3,12 +3,12 @@ from config_management import Config
 from gui_elements import *
 
 class ProfileSelect:
-    def __init__(self, profiles_list, callback, profiles_root, dont_ask_again):
+    def __init__(self, profiles_list, callback, profiles_root, dont_ask_again, askdefault=False):
         self.dontAskAgain = dont_ask_again  # Variable for manually setting checkbox_dontaskagain
-        self.on_startup_profile_prompt(profiles_list, callback)
+        self.on_profile_prompt(profiles_list, askdefault, callback)
         self.config = Config(profiles_root=profiles_root)
 
-    def on_startup_profile_prompt(self, profiles_list, callback):
+    def on_profile_prompt(self, profiles_list, askdefault, callback):
         with dpg.value_registry():
             dpg.add_bool_value(tag="tracker_bool_dontaskagain")
             dpg.add_string_value(tag="tracker_str_defaultprofile")
@@ -25,7 +25,9 @@ class ProfileSelect:
                         modal=True,
                         popup=True,
                         no_close=True) as self.profile_popup:
-            dpg.add_text("Select a profile:")
+            text_default = "Select a default startup profile:"
+            text_standard = "Select a profile:"
+            dpg.add_text(f"{text_standard if not askdefault else text_default}")
             profile_list = profiles_list
             dpg.add_listbox(items=profile_list, tag="listbox_profiles", source="tracker_str_defaultprofile")
             dpg.add_checkbox(label="Don\'t ask on startup", tag="checkbox_dontaskagain", source="tracker_bool_dontaskagain", default_value=self.dontAskAgain)

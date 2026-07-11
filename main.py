@@ -3,7 +3,6 @@ import glob
 from pathlib import Path
 import dearpygui.dearpygui as dpg
 import lxml.etree as xmlementtree
-import xdialog
 from screeninfo import get_monitors
 from ast import literal_eval as EvalStr
 import xmltodict
@@ -11,10 +10,12 @@ import os
 import platform
 import ctypes
 from ctypes import wintypes
+import xdialog
 
 from input.pynput_trackers import MouseTracker, KeyboardTracker
 import config_management
 from structure.tabs_actiondict_master import TabsActionDictMaster as actiondict_master
+from amconfig_readerwriter import ActionmapperCFGWriter as CFGWriter, ActionmapperCFGReader as CFGReader
 
 # the following three lines MUST be placed BEFORE the import statement that follows them!
 dpg.create_context()
@@ -67,7 +68,33 @@ class PyMapper:
         # self.client_root = os.path.join(homedir, "/My Games/Crysis Wars/MWLL/Client")
         self.client_root = homedir + cwdir + "\\MWLL\\Client"
         self.client_actionmapperconfig = "actionmapper.cfg"
-        print(self.checkActionmapper_cfg())
+        self.FILE_CLIENT_ACTIONMAPPERCFG = self.client_root + os.sep + self.client_actionmapperconfig
+        self.actionmappercfg_values_list = []
+        actionmappercfgcheck = self.checkActionmapper_cfg()
+        if actionmappercfgcheck:
+            self.actionmappercfg = CFGReader(self.FILE_CLIENT_ACTIONMAPPERCFG)
+            self.actionmappercfg.read_cfg()
+            self.actionmappercfg_values = self.actionmappercfg.get_cfgcontents()
+            print("read actionmapper.cfg values:", self.actionmappercfg_values)         # [int(v) for v in self.actionmappercfg_values.values()]
+        else:
+            # create new actionmapper.cfg file with all values set to default of 0
+            CFGWriter(self.FILE_CLIENT_ACTIONMAPPERCFG).write_cfg()
+            self.actionmappercfg = CFGReader(self.FILE_CLIENT_ACTIONMAPPERCFG)
+            self.actionmappercfg.read_cfg()
+            self.actionmappercfg_values = self.actionmappercfg.get_cfgcontents()
+            print("default actionmapper.cfg generated\nwritten values:", self.actionmappercfg_values)
+        # for later use: map these action types to these tab names, used to determine which action types show an Invert checkbox
+        self.invert_checkbox_criteria_mappings = {
+            "aerospace": {
+                "Pitch": "v_invertaeropitchcontrol",
+                "Turn": "v_invertaeroyawcontrol",
+                "Roll": "v_invertaerorollcontrol"
+            },
+            "vtol": {
+                "Pitch": "v_invertvtolpitchcontrol",
+                "Turn": "v_invertvtolyawcontrol"
+            }
+        }
 
         self.xml_dir = Path(f"{os.getcwd()}/xml")
         self.TEMPFILE_NAME = ".amtemp"
@@ -122,9 +149,6 @@ class PyMapper:
             }
         }
 
-        # control exceptions that can be permitted to be inverted (this will be written to actionmapper.cfg as cvars)
-        self.EXCEPTIONS_INVERTCONTROLS = {"maxis_x", "maxis_y"} # come up with a better solution.... that is dependent on control type (e.g. ASF pitch, VTOL yaw) rather than input type
-
         # center the viewport in the user's primary monitor
         dpg.configure_viewport(0, x_pos=(self.PRIMARY_MONITOR_RES_W // 2) - (dpg.get_viewport_max_width() // 2),
                                y_pos=(self.PRIMARY_MONITOR_RES_H // 2) - (dpg.get_viewport_height() // 2))
@@ -143,21 +167,23 @@ class PyMapper:
         if not profilefolder_missing:
             configPath = os.path.join(self.profiles_root, "actionmapper_config.ini")
             if not os.path.exists(configPath):
+                self.configPath_exists = False
                 print("No actionmapper_config.ini found! Prompting user for initial profile selection...")
                 self.config.createConfig(defaultprofile=None, dontaskagain=False)         # generate placeholder config
-                self.prompt_profileselect_default()
+                self.prompt_profileselect(askdefault=True)
             else:
+                self.configPath_exists = True
                 print("actionmapper_config.ini found...")
                 self.get_configdata()
                 print(" checking if user asked to be prompted again...")
                 print(" config dontaskagain:", self.config_setting_dontaskagain)
                 if self.config_setting_dontaskagain:
                     print(" user did NOT want to be asked again...")
-                    self.prompt_profileselect_default()         # Initialize the dialogue, so it may be opened later
+                    self.prompt_profileselect()         # Initialize the dialogue, so it may be opened later
                     dpg.hide_item("profile_popup")
                 else:
                     print(" user did want to be asked again...")
-                    self.prompt_profileselect_default()
+                    self.prompt_profileselect()
 
         dpg.set_primary_window(window=self.main_window, value=True)
 
@@ -167,13 +193,13 @@ class PyMapper:
         return Path(buf.value)
 
     def checkActionmapper_cfg(self):
-        print("Client dir:", self.client_root)
-        print("Client dir found?", os.path.exists(self.client_root))
-        fileCheck = os.path.exists(self.client_root + os.sep + self.client_actionmapperconfig)
-        if fileCheck:
-            return "actionmapper.cfg detected"
+        print(f"Client dir found? {os.path.exists(self.client_root)}: {self.client_root}")
+        cfgCheck = os.path.exists(self.FILE_CLIENT_ACTIONMAPPERCFG)
+        if cfgCheck:
+            print("actionmapper.cfg detected")
         else:
-            return "no actionmapper.cfg found in Client directory"
+            print("actionmapper.cfg not found in Client directory, generating one...")
+        return cfgCheck
 
     def load_actionmaps(self, actionmap_xml):
         # redefine which actionmap file is loaded, as both active and save state instances
@@ -202,13 +228,13 @@ class PyMapper:
         self.setup_display()
         dpg.set_primary_window("primary", True)
 
-    def prompt_profileselect_default(self):
+    def prompt_profileselect(self, askdefault=False):
         """
         Opens the Profile Select window by calling profile_select.py.
         """
         self.get_configdata()
         print("profiles list from config.ini:", self.config_profiles_names_list)
-        ProfileSelect(profiles_list=self.config_profiles_names_list, callback=self.get_configdata, profiles_root=self.profiles_root, dont_ask_again=self.config_setting_dontaskagain)
+        ProfileSelect(profiles_list=self.config_profiles_names_list, askdefault=askdefault, callback=self.get_configdata, profiles_root=self.profiles_root, dont_ask_again=self.config_setting_dontaskagain)
 
     def add_profile_name_to_profilenameslist(self, sctn):
         if "config_profile_name" in sctn:
@@ -444,6 +470,7 @@ class PyMapper:
 
         selectedTab = self.update_tabs(tabname)
 
+        # hide these sections that contain linked actions
         hidden_sections = [
             "C-Bill Sharing h",
             "Main HUD Elements h",
@@ -458,13 +485,17 @@ class PyMapper:
             dpg.add_table_column(label="Bind 2", no_clip=True, tag=f"table_{tabname}_columnheader_bind2")
             # print("item width:", dpg.get_item_configuration(parent))
             for actiontype in selectedTab:
-                print(actiontype)
                 if actiontype in hidden_sections:
                     pass
                 else:
                     with dpg.table_row(tag=f"table_{tabname}_row_{actiontype}"):
-                        with dpg.child_window(no_scrollbar=True, menubar=False, border=False, auto_resize_y=True, auto_resize_x=True, width=dpg.get_viewport_width()):
-                            dpg.add_text(f"{actiontype}", tag=f"table_{tabname}_row_{actiontype}_text")
+                        with dpg.child_window(tag=f"table_{tabname}_row_{actiontype}_sectiontitle", no_scrollbar=True, menubar=False, border=False, auto_resize_y=True, auto_resize_x=True, width=dpg.get_viewport_width()):
+                            with dpg.group(horizontal=True):
+                                dpg.add_text(f"{actiontype}", tag=f"table_{tabname}_row_{actiontype}_text")
+                                if tabname in self.invert_checkbox_criteria_mappings.keys() and actiontype in self.invert_checkbox_criteria_mappings[tabname].keys():
+                                    invert_checkbox_default = self.actionmappercfg_values[self.invert_checkbox_criteria_mappings[tabname][actiontype]]
+                                    dpg.add_checkbox(label="Invert Input", tag=f"table_{tabname}_row_{actiontype}_invertcheckbox", indent=160, default_value=invert_checkbox_default, callback=self.update_invert_val)
+                                    # print(tabname, actiontype, invert_checkbox_criteria_mappings[tabname][actiontype])
                 for action in selectedTab[actiontype]:
                     tab_hasMirroredBinds = False
                     if tabname in self.ACTIONS_MIRROREDBINDS:
@@ -477,7 +508,7 @@ class PyMapper:
                             currentAction = selectedTab[actiontype][action]
                             currentAction_binds = currentAction[2]
                             # print("currentAction_binds (generating row):", currentAction_binds)
-                            dpg.add_text(f"   {currentAction[1]}")
+                            dpg.add_text(f"{currentAction[1]}", indent=25)
                             try:
                                 action_bind1 = currentAction_binds[0]["@name"]
                                 action_bind2 = currentAction_binds[1]["@name"]
@@ -504,6 +535,24 @@ class PyMapper:
                             dpg.bind_item_handler_registry(bind1_text, "widget_handler")
                             dpg.bind_item_handler_registry(bind2_text, "widget_handler")
 
+    def update_invert_val(self, sender, data):
+        sender = sender.split("_")
+        print(sender, data)
+        sender_tabname = sender[1]
+        sender_actiontype = sender[3]
+        actionmapper_cfg_var = ""
+        for t in self.invert_checkbox_criteria_mappings.keys():
+            if t == sender_tabname:
+                for a in self.invert_checkbox_criteria_mappings[t].keys():
+                    if a == sender_actiontype:
+                        actionmapper_cfg_var = self.invert_checkbox_criteria_mappings[t][a]
+                        print(actionmapper_cfg_var)
+        for v in self.actionmappercfg_values.keys():
+            if v == actionmapper_cfg_var:
+                self.actionmappercfg_values[actionmapper_cfg_var] = data
+
+        self.actionmappercfg_values_list = [int(v) for v in self.actionmappercfg_values.values()]
+        print("updated actionmappercfg_values:", self.actionmappercfg_values_list)
 
     def pass_selected_actionbind(self, bindtag):
         dpg.configure_item(item=bindtag, default_value=False)
@@ -560,12 +609,10 @@ class PyMapper:
                         modal=True,
                         popup=True) as self.rebindwindow:
             rebindwindow_prompttext = dpg.add_text(f"Rebind {action} ({bindnum}) to", wrap=250)
-            rebindwindow_promptfield = dpg.add_input_text(default_value=f"{bind} (current)", auto_select_all=True,
-                                                          readonly=True, tag="rebindwindow_promptfield")
+            rebindwindow_promptfield = dpg.add_input_text(default_value=f"{bind} (current)", auto_select_all=True, readonly=True, tag="rebindwindow_promptfield")
             # put section on right half of window that gives the user options to choose input method (from dropdown menu; kbd/m/jstk-cntrlr)
             # selecting one of these options will then open a screen prompting the user to press a key or move their mouse/press mouse button
-            rebindwindow_inputdevicetype_list = ["mouse axis", "mouse button / wheel",
-                                                 "keyboard"]  # , "joystick / controller"]
+            rebindwindow_inputdevicetype_list = ["mouse axis", "mouse button / wheel", "keyboard"] #, "joystick / controller"]
             rebindwindow_inputdevicetype = dpg.add_combo(items=rebindwindow_inputdevicetype_list,
                                                          default_value="Select an input device",
                                                          callback=self.combo_setvalue)
@@ -575,17 +622,13 @@ class PyMapper:
             bind_slot = int(bindnum.removeprefix("bind ")) - 1
             with dpg.group(horizontal=True):
                 print(category, action, bindnum, bind)
-                dpg.add_button(label="confirm", callback=lambda: [
-                    self.on_keybind_prompt_confirm(tab=tab, category=category, action=action, bindnum=bind_slot,
-                                                   newbind=dpg.get_value("rebindwindow_promptfield")),
-                    dpg.delete_item("rebind_popup")])
+                dpg.add_button(label="confirm", callback=lambda: [self.on_keybind_prompt_confirm(tab=tab, category=category, action=action, bindnum=bind_slot, newbind=dpg.get_value("rebindwindow_promptfield")), dpg.delete_item("rebind_popup")])
                 dpg.add_button(label="cancel", callback=lambda: dpg.delete_item("rebind_popup"))
 
                 # if bind in self.EXCEPTIONS_INVERTCONTROLS:
                 #     dpg.configure_item("rebindwindow_invert_checkbox", show=True)
                 dpg.add_spacer(width=65)
-                dpg.add_button(label="clear bind",
-                               callback=lambda: dpg.configure_item("rebindwindow_promptfield", default_value="none"))
+                dpg.add_button(label="clear bind", callback=lambda: dpg.configure_item("rebindwindow_promptfield", default_value="none"))
 
             # print(dpg.get_value(rebindwindow_inputdevicetype))
             dpg.bind_item_font(rebindwindow_prompttext, header_font)
@@ -613,60 +656,37 @@ class PyMapper:
                 # text_rect_size = dpg.get_item_rect_size("inputdevice_mouse_instr")
                 # dpg.configure_item("inputdevice_mouse_instr", pos=[int(window_rect_size[0] // 2) - text_rect_size[0], int(window_rect_size[1] // 2) - text_rect_size[1]])
                 inputdevice_mousemove_instr_str = "Move your mouse horizontally or vertically"
-                inputdevice_mousemove_instr_button = dpg.add_button(
-                    label=f"{inputdevice_mousemove_instr_str}\n\nThis prompt will close in {int(waitTime * 2)} seconds",
-                    width=window_rect_size[0],
-                    pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size(inputdevice_mousemove_instr_str)[0],
-                         dpg.get_viewport_height() // 2 - 75])
+                inputdevice_mousemove_instr_button = dpg.add_button(label=f"{inputdevice_mousemove_instr_str}\n\nThis prompt will close in {int(waitTime*2)} seconds", width=window_rect_size[0], pos=[dpg.get_viewport_width()//2 - dpg.get_text_size(inputdevice_mousemove_instr_str)[0], dpg.get_viewport_height()//2 - 75])
                 dpg.bind_item_theme(inputdevice_mousemove_instr_button, invisible_button_theme)
 
                 mouseTracker = MouseTracker(track_axis=True)
                 mouseTracker.start_tracking(waitTime)
                 mousemoveInput = mouseTracker.get_larger_moveAxis()
-                mousemoveInput_button = dpg.add_button(
-                    label=f"{'No input' if mousemoveInput == 'none' else mousemoveInput} detected",
-                    width=int(dpg.get_text_size("------------------------------")[0]),
-                    pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size("------------------------------")[0],
-                         dpg.get_viewport_height() // 2])
+                mousemoveInput_button = dpg.add_button(label=f"{'No input' if mousemoveInput == 'none' else mousemoveInput} detected", width=int(dpg.get_text_size("------------------------------")[0]), pos=[dpg.get_viewport_width()//2 - dpg.get_text_size("------------------------------")[0], dpg.get_viewport_height()//2])
                 dpg.bind_item_theme(mousemoveInput_button, invisible_button_theme)
                 user_input = mousemoveInput
 
             elif devicetype == "mouse button / wheel":
                 inputdevice_mousemove_instr_str = "Press a mouse button or scroll"
-                inputdevice_mousemove_instr_button = dpg.add_button(
-                    label=f"{inputdevice_mousemove_instr_str}\n\n{inputdevice_instr_esc_str}",
-                    width=window_rect_size[0],
-                    pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size(inputdevice_mousemove_instr_str)[0],
-                         dpg.get_viewport_height() // 2 - 75])
+                inputdevice_mousemove_instr_button = dpg.add_button(label=f"{inputdevice_mousemove_instr_str}\n\n{inputdevice_instr_esc_str}", width=window_rect_size[0], pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size(inputdevice_mousemove_instr_str)[0], dpg.get_viewport_height() // 2 - 75])
                 dpg.bind_item_theme(inputdevice_mousemove_instr_button, invisible_button_theme)
 
                 mouseTracker = MouseTracker(track_buttons=True)
                 mouseTracker.start_tracking(waitTime)
                 mousebuttonInput = mouseTracker.get_buttonPressed()
-                mousebuttonInput_button = dpg.add_button(
-                    label=f"{cancel_str if mousebuttonInput == 'none' else mousebuttonInput} detected",
-                    width=int(dpg.get_text_size("------------------------------")[0]),
-                    pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size("------------------------------")[0],
-                         dpg.get_viewport_height() // 2])
+                mousebuttonInput_button = dpg.add_button(label=f"{cancel_str if mousebuttonInput == 'none' else mousebuttonInput} detected", width=int(dpg.get_text_size("------------------------------")[0]), pos=[dpg.get_viewport_width()//2 - dpg.get_text_size("------------------------------")[0], dpg.get_viewport_height()//2])
                 dpg.bind_item_theme(mousebuttonInput_button, invisible_button_theme)
                 user_input = mousebuttonInput
 
             elif devicetype == "keyboard":
                 inputdevice_keyboard_instr_str = "Press a keyboard button"
-                inputdevice_keyboard_instr_button = dpg.add_button(
-                    label=f"{inputdevice_keyboard_instr_str}\n\n{inputdevice_instr_esc_str}",
-                    width=window_rect_size[0],
-                    pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size(inputdevice_keyboard_instr_str)[0], dpg.get_viewport_height() // 2 - 75])
+                inputdevice_keyboard_instr_button = dpg.add_button(label=f"{inputdevice_keyboard_instr_str}\n\n{inputdevice_instr_esc_str}", width=window_rect_size[0], pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size(inputdevice_keyboard_instr_str)[0], dpg.get_viewport_height() // 2 - 75])
                 dpg.bind_item_theme(inputdevice_keyboard_instr_button, invisible_button_theme)
 
                 keyboardTracker = KeyboardTracker()
                 keyboardTracker.start_tracking()
                 keyboardkeyInput = keyboardTracker.get_keyPressed()
-                keyboardkeyInput_button = dpg.add_button(
-                    label=f"{cancel_str if keyboardkeyInput == 'escape' or keyboardkeyInput == 'none' else keyboardkeyInput} detected",
-                    width=int(dpg.get_text_size("------------------------------")[0]),
-                    pos=[dpg.get_viewport_width() // 2 - dpg.get_text_size("------------------------------")[0],
-                         dpg.get_viewport_height() // 2])
+                keyboardkeyInput_button = dpg.add_button(label=f"{cancel_str if keyboardkeyInput == 'escape' or keyboardkeyInput == 'none' else keyboardkeyInput} detected", width=int(dpg.get_text_size("------------------------------")[0]), pos=[dpg.get_viewport_width()//2 - dpg.get_text_size("------------------------------")[0], dpg.get_viewport_height()//2])
                 dpg.bind_item_theme(keyboardkeyInput_button, invisible_button_theme)
                 user_input = keyboardkeyInput
 
@@ -751,7 +771,7 @@ class PyMapper:
 
     def write_actionmaps_to_xml(self, actionmaplist, istemp=False, outputpath=None, writedata=None, onsavegood=None):
         """
-        Write actionmaps to an xml file using xmltodict.unparse
+        Write actionmaps to an xml file using xmltodict.unparse.
         """
         # note: the source data MUST be a dictionary
         # thus, prepare source to be turned into a dictionary:
@@ -767,7 +787,6 @@ class PyMapper:
         else:
             with open(outputpath, "w") as xmlfile:
                 xmlfile.write(output_data)
-                print("save successful")
                 time.sleep(0.1)
                 onsavegood()
                 self.load_actionmaps(outputpath)
@@ -814,8 +833,8 @@ class PyMapper:
     def on_save_prompt(self):
         savedfile = xdialog.save_file("Save Actionmap", filetypes=[("XML Files", "*.xml")])
         if savedfile != "":
-            self.write_actionmaps_to_xml(self.actionmap_master_new_list, outputpath=savedfile,
-                                         onsavegood=self.on_save_good)
+            self.write_actionmaps_to_xml(self.actionmap_master_new_list, outputpath=savedfile, onsavegood=self.on_save_good)
+            CFGWriter(self.FILE_CLIENT_ACTIONMAPPERCFG).write_cfg(val_list=self.actionmappercfg_values_list)          # always update actionmapper.cfg together with actionmaps.xml
 
     def on_about_dialogbox(self):
         """
