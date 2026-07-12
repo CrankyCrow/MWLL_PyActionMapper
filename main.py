@@ -327,9 +327,16 @@ class PyMapper:
                 with dpg.group(tag="profile_info_player_name_group", parent="profile_info_display", horizontal=True):
                     dpg.add_text("Profile:", tag="profile_info_player_name_prompt", parent="profile_info_player_name_group")
                     dpg.add_text("", tag="profile_info_player_name", parent="profile_info_player_name_group", source="tracker_str_selectedprofile", indent=60)
+                    dpg.add_button(label="Save Changes", parent="profile_info_player_name_group", tag="button_saveactionmaps", callback=lambda: [
+                        self.write_actionmaps_to_xml(self.actionmap_master_new_list, outputpath=self.profile_player_actionmap_path, onsavegood=self.on_save_good),
+                        CFGWriter(self.FILE_CLIENT_ACTIONMAPPERCFG).write_cfg(val_list=self.actionmappercfg_values_list)
+                    ])
                 with dpg.group(tag="profile_info_player_actionmaps_path_group", parent="profile_info_display", horizontal=True):
                     dpg.add_text("Current Actionmaps:", tag="profile_info_player_actionmaps_path_prompt", parent="profile_info_player_actionmaps_path_group")
                     dpg.add_text("", tag="profile_info_player_actionmaps_path", source="tracker_str_selectedprofile_actionmaps", parent="profile_info_player_actionmaps_path_group")
+
+                dpg.configure_item("button_saveactionmaps", pos=[805, 8])
+                dpg.configure_item("button_saveactionmaps", enabled=False)
 
             dpg.add_separator(parent="binds_display")
 
@@ -553,6 +560,7 @@ class PyMapper:
 
         self.actionmappercfg_values_list = [int(v) for v in self.actionmappercfg_values.values()]
         print("updated actionmappercfg_values:", self.actionmappercfg_values_list)
+        self.indicate_changes()
 
     def pass_selected_actionbind(self, bindtag):
         dpg.configure_item(item=bindtag, default_value=False)
@@ -762,12 +770,17 @@ class PyMapper:
         # self.actionmap_active.load(self.TEMPFILE_PATH, self.dtd_actionmap)
         # print(self.actionmap_active.get_action(category, action))
         self.load_actionmaps(self.TEMPFILE_PATH)
-        dpg.set_viewport_title("pyActionmapper *")
         ## delete existing interface at its root, and reload it with new one:
         dpg.delete_item("primary")
         print(f"restoring tab: {tab}")
         self.setup_display(default_tab=tab)
+        self.indicate_changes()
         dpg.set_primary_window(window=self.main_window, value=True)
+
+    def indicate_changes(self):
+        ## subtly let user know there have been changes made, with asterisk now in window title, as well as enabling the main window's Save button
+        dpg.set_viewport_title("pyActionmapper *")
+        dpg.configure_item("button_saveactionmaps", enabled=True)
 
     def write_actionmaps_to_xml(self, actionmaplist, istemp=False, outputpath=None, writedata=None, onsavegood=None):
         """
@@ -807,14 +820,14 @@ class PyMapper:
                             modal=True,
                             popup=True,
                             no_close=True) as self.save_notif_good:
-                dpg.add_text("File saved successfully")
+                dpg.add_text("Changes saved successfully")
 
         dpg.split_frame()
         popup_width = dpg.get_item_width("save_good_popup")
         popup_height = dpg.get_item_height("save_good_popup")
         print(popup_width, popup_height)
         dpg.set_item_pos("save_good_popup", [(viewport_width // 2) - (popup_width // 2), (viewport_height // 2) - (popup_height // 2)])
-        print("file saved successfully")
+        print("changes saved successfully")
         dpg.set_viewport_title("pyActionmapper")
         time.sleep(2)
         dpg.delete_item("save_good_popup")
