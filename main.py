@@ -22,7 +22,7 @@ dpg.create_context()
 dpg.create_viewport(title="pyActionmapper")
 dpg.configure_viewport(0, width=920, height=600, max_width=920, max_height=600, decorated=True, resizable=False)
 
-from theme_registry import global_theme, invisible_button_theme, error_popup_theme
+from theme_registry import global_theme, invisible_button_theme, error_popup_theme, savebutton_enabled_theme
 from gui_elements import *
 
 from structure.structure import actionmaps
@@ -327,14 +327,13 @@ class PyMapper:
                 with dpg.group(tag="profile_info_player_name_group", parent="profile_info_display", horizontal=True):
                     dpg.add_text("Profile:", tag="profile_info_player_name_prompt", parent="profile_info_player_name_group")
                     dpg.add_text("", tag="profile_info_player_name", parent="profile_info_player_name_group", source="tracker_str_selectedprofile", indent=60)
-                    dpg.add_button(label="Save Changes", parent="profile_info_player_name_group", tag="button_saveactionmaps", callback=lambda: [
-                        self.write_actionmaps_to_xml(self.actionmap_master_new_list, outputpath=self.profile_player_actionmap_path, onsavegood=self.on_save_good),
-                        CFGWriter(self.FILE_CLIENT_ACTIONMAPPERCFG).write_cfg(val_list=self.actionmappercfg_values_list)
-                    ])
                 with dpg.group(tag="profile_info_player_actionmaps_path_group", parent="profile_info_display", horizontal=True):
                     dpg.add_text("Current Actionmaps:", tag="profile_info_player_actionmaps_path_prompt", parent="profile_info_player_actionmaps_path_group")
                     dpg.add_text("", tag="profile_info_player_actionmaps_path", source="tracker_str_selectedprofile_actionmaps", parent="profile_info_player_actionmaps_path_group")
-
+                dpg.add_button(label="Save Changes", tag="button_saveactionmaps", height=40, callback=lambda: [
+                    self.write_actionmaps_to_xml(self.actionmap_master_new_list, outputpath=self.profile_player_actionmap_path, onsavegood=self.on_save_good),
+                    CFGWriter(self.FILE_CLIENT_ACTIONMAPPERCFG).write_cfg(val_list=self.actionmappercfg_values_list)
+                ])
                 dpg.configure_item("button_saveactionmaps", pos=[805, 8])
                 dpg.configure_item("button_saveactionmaps", enabled=False)
 
@@ -781,6 +780,7 @@ class PyMapper:
         ## subtly let user know there have been changes made, with asterisk now in window title, as well as enabling the main window's Save button
         dpg.set_viewport_title("pyActionmapper *")
         dpg.configure_item("button_saveactionmaps", enabled=True)
+        dpg.bind_item_theme(item="button_saveactionmaps", theme=savebutton_enabled_theme)
 
     def write_actionmaps_to_xml(self, actionmaplist, istemp=False, outputpath=None, writedata=None, onsavegood=None):
         """

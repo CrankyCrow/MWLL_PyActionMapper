@@ -33,6 +33,12 @@ with dpg.theme() as global_theme:
                 dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (45, 45, 48))
                 dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (45, 45, 48))
 
+with dpg.theme() as savebutton_enabled_theme:
+    with dpg.theme_component(dpg.mvAll):
+        dpg.add_theme_color(dpg.mvThemeCol_Button, (25, 100, 25))
+        dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (45, 75, 48))
+        dpg.add_theme_color(dpg.mvThemeCol_ButtonActive, (45, 75, 48))
+
 with dpg.theme() as error_popup_theme:
     with dpg.theme_component(dpg.mvAll):
         dpg.add_theme_color(dpg.mvThemeCol_ButtonHovered, (200, 40, 0))
