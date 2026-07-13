@@ -38,7 +38,7 @@ class PyMapper:
         self.PRIMARY_MONITOR_RES_W = monitor_res[0]
         self.PRIMARY_MONITOR_RES_H = monitor_res[1]
 
-        self.VERSION = "0.0.5a"
+        self.VERSION = "0.0.6"
 
         # establish vars for config management
         ## get the root path to all profiles:
