@@ -40,8 +40,12 @@ class Config:
 
         print(config)
 
-        with open(self.configPath, "w") as configfile:
-            config.write(configfile)
+        try:
+            with open(self.configPath, "w") as configfile:
+                config.write(configfile)
+        except FileNotFoundError:
+            with open(self.configPath, "x") as configfile:
+                config.write(configfile)
 
     def readConfig(self):
         config = configparser.ConfigParser()
