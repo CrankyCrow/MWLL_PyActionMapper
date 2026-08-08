@@ -31,14 +31,14 @@ from profile_select import ProfileSelect
 class PyMapper:
     def __init__(self):
         with dpg.value_registry():
-            dpg.add_string_value(tag="tracker_str_selectedprofile", default_value="MechWarrior")
+            dpg.add_string_value(tag="tracker_str_selectedprofile", default_value="")
             dpg.add_string_value(tag="tracker_str_selectedprofile_actionmaps", default_value="")
 
         monitor_res = self.get_monitor_res()
         self.PRIMARY_MONITOR_RES_W = monitor_res[0]
         self.PRIMARY_MONITOR_RES_H = monitor_res[1]
 
-        self.VERSION = "0.0.6"
+        self.VERSION = "0.0.6a"
 
         # establish vars for config management
         ## get the root path to all profiles:
@@ -54,11 +54,18 @@ class PyMapper:
         self.profiles_root = homedir + cwdir + "\\Profiles"
         print(self.profiles_root)
         profilefolder_missing = False
+        self.profile_switch_enable = True
         try:
-            self.config = config_management.Config(profiles_root=self.profiles_root)
+            if not os.listdir(self.profiles_root):
+                self.profile_switch_enable = False
+                raise FileNotFoundError
+            else:
+                self.config = config_management.Config(profiles_root=self.profiles_root)
         except FileNotFoundError:
             profilefolder_missing = True
+            self.profile_switch_enable = False
         print("profile folder missing?", profilefolder_missing)
+
         self.config_setting_dontaskagain = False
         self.config_profiles_names_list = []
 
@@ -159,8 +166,8 @@ class PyMapper:
 
         # check that the [user home]/Profiles folder exists and/or is populated
         if profilefolder_missing or (len(os.listdir(self.profiles_root)) == 0):
-            error_msg = f"No profiles found in Documents\\My Games\\Crysis Wars\\Profiles!\n\nYou must create a new profile in Crysis Wars before using this application.\n"
-            self.on_error_popup(error_title="No profiles found, exiting!", error_msg=error_msg, showbutton=True, callback=self.exit_window)
+            error_msg = f"No profiles found in {self.profiles_root}!\n\nPlease ensure you have a Crysis Wars profile to fully use this program and play MWLL.\n\nYou can, however, continue to use this program to create or modify existing actionmaps.xml files.\n\nA default actionmap has been provided.\n"
+            self.on_error_popup(error_title="No profiles detected", error_msg=error_msg, showbutton=True)
 
         # assuming profiles' root folder exists, detect whether a config.ini file exists in the Profiles dir
         # if config file doesn't exist, prompt the user to generate one via the profile selection screen, before they can use the rest of the software
@@ -184,6 +191,8 @@ class PyMapper:
                 else:
                     print(" user did want to be asked again...")
                     self.prompt_profileselect()
+        else:
+            self.setup_display()
 
         dpg.set_primary_window(window=self.main_window, value=True)
 
@@ -306,7 +315,8 @@ class PyMapper:
             # establish menu bar and its child buttons:
             with dpg.menu_bar(tag="primary_menubar", parent="primary"):
                 with dpg.menu(label="File"):
-                    dpg.add_menu_item(label="Switch Profile", callback=self.on_switchprofile_prompt)            # open a different profile's actionmaps
+                    if self.profile_switch_enable:
+                        dpg.add_menu_item(label="Switch Profile", callback=self.on_switchprofile_prompt)            # open a different profile's actionmaps
                     # dpg.add_menu_item(label="Reset to default", callback=self.on_resetdefault_prompt)         # reset current actionmap to default version
                     # dpg.add_menu_item(label="Reset changes")          # reset current actionmap to last saved version of current actionmap
                     # dpg.add_menu_item(label="New")                                          # create a new actionmap
@@ -325,15 +335,19 @@ class PyMapper:
 
             with dpg.group(tag="profile_info_display", parent="binds_display", horizontal=False):
                 with dpg.group(tag="profile_info_player_name_group", parent="profile_info_display", horizontal=True):
-                    dpg.add_text("Profile:", tag="profile_info_player_name_prompt", parent="profile_info_player_name_group")
-                    dpg.add_text("", tag="profile_info_player_name", parent="profile_info_player_name_group", source="tracker_str_selectedprofile", indent=60)
+                    if self.profile_switch_enable:
+                        dpg.add_text("Profile:", tag="profile_info_player_name_prompt", parent="profile_info_player_name_group")
+                        dpg.add_text("", tag="profile_info_player_name", parent="profile_info_player_name_group", source="tracker_str_selectedprofile", indent=60)
+
+                    # dpg.add_text("Current Actionmaps:", tag="profile_info_player_actionmaps_path_prompt", parent="profile_info_player_name_group")
+                    # dpg.add_text("", tag="profile_info_player_actionmaps_path", source="tracker_str_selectedprofile_actionmaps", parent="profile_info_player_name_group")
                 with dpg.group(tag="profile_info_player_actionmaps_path_group", parent="profile_info_display", horizontal=True):
                     dpg.add_text("Current Actionmaps:", tag="profile_info_player_actionmaps_path_prompt", parent="profile_info_player_actionmaps_path_group")
                     dpg.add_text("", tag="profile_info_player_actionmaps_path", source="tracker_str_selectedprofile_actionmaps", parent="profile_info_player_actionmaps_path_group")
                 dpg.add_button(label="Save Changes", tag="button_saveactionmaps", height=40, callback=lambda: [
                     self.write_actionmaps_to_xml(self.actionmap_master_new_list, outputpath=self.profile_player_actionmap_path, onsavegood=self.on_save_good),
                     CFGWriter(self.FILE_CLIENT_ACTIONMAPPERCFG).write_cfg(val_list=self.actionmappercfg_values_list)
-                ])
+                ] if os.path.exists(self.profile_player_actionmap_path) else self.on_save_prompt(no_profile=True))
                 dpg.configure_item("button_saveactionmaps", pos=[805, 8])
                 dpg.configure_item("button_saveactionmaps", enabled=False)
 
@@ -402,7 +416,6 @@ class PyMapper:
         print("actionval:", actionval)
         if type(actionval[0]) == str and type(actionval[1]) == str and type(actionval[2]) == list and len(actionval[2]) == 2:
             check_pass = True
-
         return check_pass
 
     def update_tabs(self, tabname):
@@ -411,7 +424,6 @@ class PyMapper:
         for section in selectedTab:
             # print(section)
             for action in selectedTab[section]:
-                # print(action, f"\n  {selectedTab[section][action]}")
                 action_category = selectedTab[section][action][0]
                 controlcategory_list = self.load_actionmap_as_list(action_category)
                 # print("controlcategory_list:", controlcategory_list)
@@ -437,28 +449,39 @@ class PyMapper:
                                 # force add empty second bind slot, as part of a new list of bind slots:
                                 selectedTab[section][action].append([actionmap_action["key"], {'@name': "null"}])
                                 print("added one empty second bind slot:", selectedTab[section][action])
+                                controlcategory_list[controlcategory_list.index(actionmap_action)]["key"] = [actionmap_action["key"], {'@name': "null"}]
+                                print(controlcategory_list[controlcategory_list.index(actionmap_action)])
+                                print("controlcategory_list after single bind slot append: ", controlcategory_list)
+                                # self.actiondict_master.tabs[tabname][section][action]
+                                print("entry in tabs_actiondict_master (after adding 1 bind slot):", self.actiondict_master.tabs[tabname][section][action])
                             else:
                                 selectedTab[section][action].append(actionmap_action["key"])
 
                         elif self.tab_action_format_checker(selectedTab[section][action]):
                             selectedTab[section][action][2] = actionmap_action["key"]
+                            print("entry in tabs_actiondict_master (after format check pass):", self.actiondict_master.tabs[tabname][section][action])
 
                     else:
                         pass
 
                 # mirror any special case actions' binds to their corresponding actions
+                print("entry in tabs_actiondict_master (before mirrored actions check):", self.actiondict_master.tabs[tabname][section][action])
                 if tabname in self.ACTIONS_MIRROREDBINDS.keys():
-                    print(f"tabname {tabname} found in ACTIONS_MIRROREDBINDS")
                     if action in self.ACTIONS_MIRROREDBINDS[tabname].keys():
+                        print(f"action {action} found in ACTIONS_MIRROREDBINDS")
                         linked_action = self.ACTIONS_MIRROREDBINDS[tabname][action]["linkedAction"]  # get name of linked action to copy bind slots
                         linked_action_section = self.ACTIONS_MIRROREDBINDS[tabname][action]["linkedActionSection"]  # get tab section of linked action
                         linked_action_tab = self.ACTIONS_MIRROREDBINDS[tabname][action]["linkedActionTab"]   # get tab of linked action
+                        linked_action_binds = self.actiondict_master.tabs[linked_action_tab][linked_action_section][linked_action][2]
                         print(f"ENCOUNTERED ACTION {action} ({section}), WHICH IS LINKED TO {linked_action} ({linked_action_tab}, {linked_action_section}):")
                         print(" pre-mirror:", selectedTab[section][action])
-                        selectedTab[section][action][2] = self.actiondict_master.tabs[linked_action_tab][linked_action_section][linked_action][2]
+                        print(" linked action:", self.actiondict_master.tabs[linked_action_tab][linked_action_section][linked_action])
+                        selectedTab[section][action][2] = linked_action_binds
                         print(f"    SPECIAL CASE ACTION {action} RE-BOUND AS FOLLOWS: {selectedTab[section][action]}")
                         bindindx = -1
+                        print(self.actiondict_master.tabs[linked_action_tab][linked_action_section][linked_action][2])
                         for b in self.actiondict_master.tabs[linked_action_tab][linked_action_section][linked_action][2]:
+                            # print(b)
                             bindindx += 1
                             self.update_master_new_list_bind(category=action_category, action=action,
                                                              bindnum=bindindx,
@@ -709,7 +732,7 @@ class PyMapper:
 
     def update_master_new_list_bind(self, category, action, bindnum, newbind):
         """
-
+        Updates actionmap_master_new_list given category, action name, bind number, and new bind value
         :param category: the name of the section where the action-to-be-modified is located
         :param action: the name of the action being modified
         :param bindnum: the index number (0 or 1) of the bind slot to modify
@@ -769,6 +792,7 @@ class PyMapper:
         # self.actionmap_active.load(self.TEMPFILE_PATH, self.dtd_actionmap)
         # print(self.actionmap_active.get_action(category, action))
         self.load_actionmaps(self.TEMPFILE_PATH)
+
         ## delete existing interface at its root, and reload it with new one:
         dpg.delete_item("primary")
         print(f"restoring tab: {tab}")
@@ -798,11 +822,15 @@ class PyMapper:
                 xmlfile.write(output_data)
                 print("successfully saved temp file")
         else:
-            with open(outputpath, "w") as xmlfile:
-                xmlfile.write(output_data)
-                time.sleep(0.1)
-                onsavegood()
-                self.load_actionmaps(outputpath)
+            try:
+                with open(outputpath, "w") as xmlfile:
+                    xmlfile.write(output_data)
+                    # if writedata["file_path_name"] == outputpath:
+                    time.sleep(0.1)
+                    onsavegood()
+                    self.load_actionmaps(outputpath)
+            except FileNotFoundError:
+                self.on_save_prompt()
 
     def on_save_good(self):
         """
@@ -843,9 +871,11 @@ class PyMapper:
         if openedfile != "":
             self.load_actionmaps(actionmap_xml=openedfile)
 
-    def on_save_prompt(self):
+    def on_save_prompt(self, no_profile=False):
         savedfile = xdialog.save_file("Save Actionmap", filetypes=[("XML Files", "*.xml")])
         if savedfile != "":
+            if no_profile:
+                self.profile_player_actionmap_path = savedfile
             self.write_actionmaps_to_xml(self.actionmap_master_new_list, outputpath=savedfile, onsavegood=self.on_save_good)
             CFGWriter(self.FILE_CLIENT_ACTIONMAPPERCFG).write_cfg(val_list=self.actionmappercfg_values_list)          # always update actionmapper.cfg together with actionmaps.xml
 
