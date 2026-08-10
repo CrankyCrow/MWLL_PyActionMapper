@@ -56,10 +56,12 @@ class PyMapper:
         profilefolder_missing = False
         self.profile_switch_enable = True
         try:
+            # check that Profiles folder isn't empty, raise error if it is
             if not os.listdir(self.profiles_root):
                 self.profile_switch_enable = False
                 raise FileNotFoundError
             else:
+                # create config file if Profiles folder is populated
                 self.config = config_management.Config(profiles_root=self.profiles_root)
         except FileNotFoundError:
             profilefolder_missing = True
@@ -169,15 +171,20 @@ class PyMapper:
             error_msg = f"No profiles found in {self.profiles_root}!\n\nPlease ensure you have a Crysis Wars profile to fully use this program and play MWLL.\n\nYou can, however, continue to use this program to create or modify existing actionmaps.xml files.\n\nA default actionmap has been provided.\n"
             self.on_error_popup(error_title="No profiles detected", error_msg=error_msg, showbutton=True)
 
-        # assuming profiles' root folder exists, detect whether a config.ini file exists in the Profiles dir
+        # assuming profiles' root folder exists, detect whether an actionmapper_config.ini file exists in the Profiles dir
         # if config file doesn't exist, prompt the user to generate one via the profile selection screen, before they can use the rest of the software
         if not profilefolder_missing:
             configPath = os.path.join(self.profiles_root, "actionmapper_config.ini")
             if not os.path.exists(configPath):
                 self.configPath_exists = False
                 print("No actionmapper_config.ini found! Prompting user for initial profile selection...")
-                self.config.createConfig(defaultprofile=None, dontaskagain=False)         # generate placeholder config
-                self.prompt_profileselect(askdefault=True)
+                try:
+                    self.config.createConfig(defaultprofile=None, dontaskagain=False)  # generate placeholder config
+                    self.prompt_profileselect(askdefault=True)
+                except FileNotFoundError:
+                    # if, for some reason, the actionmapper_config.ini file cannot be accessed, skip everything profile-related and just let the user use the program for basic editing and opening
+                    self.profile_switch_enable = False
+                    self.setup_display()
             else:
                 self.configPath_exists = True
                 print("actionmapper_config.ini found...")
